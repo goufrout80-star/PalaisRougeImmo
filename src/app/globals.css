@@ -1,26 +1,307 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* === PALAIS ROUGE — Brand Colors === */
+
+  /* Primary Red (from logo) */
+  --rouge:           #8B1A1A;
+  --rouge-dark:      #6B1212;
+  --rouge-light:     #A82020;
+  --rouge-tint:      #F5ECEC;
+
+  /* Gold Accent */
+  --gold:            #B8962E;
+  --gold-light:      #D4AF50;
+  --gold-tint:       #F2E8C8;
+
+  /* Neutrals */
+  --noir:            #1A1A1A;
+  --charcoal:        #3D3D3D;
+  --stone:           #7A7570;
+  --parchment:       #F7F3EE;
+  --linen:           #EDEAE5;
+  --white:           #FFFFFF;
+
+  /* Semantic aliases */
+  --background:      #F7F3EE;
+  --foreground:      #1A1A1A;
+  --primary:         #8B1A1A;
+  --primary-dark:    #6B1212;
+  --primary-light:   #A82020;
+  --accent:          #B8962E;
+  --muted:           #7A7570;
+  --muted-light:     #A09B96;
+  --border:          #EDEAE5;
+  --surface:         #FFFFFF;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-playfair);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+}
+
+/* ===== Typography ===== */
+.font-display {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+.font-sans {
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+}
+
+/* ===== Card Elegant ===== */
+.card-elegant {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.card-elegant:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(139, 26, 26, 0.08), 0 4px 12px rgba(139, 26, 26, 0.04);
+}
+
+/* ===== Button Luxury ===== */
+.btn-luxury {
+  position: relative;
+  overflow: hidden;
+  padding: 12px 32px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background: var(--rouge);
+  color: white;
+}
+
+.btn-luxury::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-luxury:hover::before {
+  left: 100%;
+}
+
+.btn-luxury:hover {
+  background: var(--rouge-dark);
+}
+
+/* ===== Image Zoom ===== */
+.img-zoom {
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.img-zoom img {
+  transition: transform 0.5s ease;
+}
+
+.img-zoom:hover img {
+  transform: scale(1.05);
+}
+
+/* ===== Elegant Underline ===== */
+.elegant-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.elegant-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--gold);
+  transition: width 0.3s ease;
+}
+
+.elegant-underline:hover::after {
+  width: 100%;
+}
+
+/* ===== Input Luxury ===== */
+.input-luxury {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.input-luxury:focus {
+  outline: none;
+  border-color: var(--rouge);
+  box-shadow: 0 0 0 3px rgba(139, 26, 26, 0.12);
+}
+
+.input-luxury::placeholder {
+  color: var(--muted-light);
+}
+
+/* ===== Tag Luxury ===== */
+.tag-luxury {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--rouge-tint);
+  color: var(--rouge);
+  transition: all 0.3s ease;
+}
+
+.tag-luxury:hover {
+  background: var(--rouge);
+  color: white;
+  border-color: var(--rouge);
+}
+
+/* ===== Shadows ===== */
+.shadow-luxury {
+  box-shadow: 0 4px 20px rgba(139, 26, 26, 0.06), 0 2px 8px rgba(139, 26, 26, 0.03);
+}
+
+.shadow-luxury-lg {
+  box-shadow: 0 12px 40px rgba(139, 26, 26, 0.1), 0 4px 12px rgba(139, 26, 26, 0.05);
+}
+
+/* ===== Divider ===== */
+.divider-elegant {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+  border: none;
+}
+
+/* ===== Grid Pattern ===== */
+.grid-pattern {
+  background-image: 
+    linear-gradient(rgba(139, 26, 26, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 26, 26, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ===== Noise Texture ===== */
+.noise-subtle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== Animations ===== */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes draw-line {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.animate-fade-up { animation: fade-up 0.6s ease forwards; }
+.animate-fade-in { animation: fade-in 0.6s ease forwards; }
+.animate-slide-in-left { animation: slide-in-left 0.6s ease forwards; }
+.animate-slide-in-right { animation: slide-in-right 0.6s ease forwards; }
+.animate-scale-in { animation: scale-in 0.5s ease forwards; }
+.animate-float-gentle { animation: float-gentle 3s ease-in-out infinite; }
+.animate-draw-line { animation: draw-line 0.8s ease forwards; }
+
+.stagger > * {
+  opacity: 0;
+  animation: fade-up 0.5s ease forwards;
+}
+
+.stagger > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger > *:nth-child(6) { animation-delay: 0.6s; }
+.stagger > *:nth-child(7) { animation-delay: 0.7s; }
+.stagger > *:nth-child(8) { animation-delay: 0.8s; }
+
+/* ===== RTL Support ===== */
+[dir="rtl"] body {
+  font-family: var(--font-arabic), system-ui, sans-serif;
+}
+
+[dir="rtl"] .font-display {
+  font-family: var(--font-arabic), Georgia, serif;
+}
+
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--parchment);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--rouge);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rouge-dark);
 }

@@ -1,0 +1,32 @@
+{
+  "name": "Palais Rouge Immo",
+  "short_name": "Palais Rouge",
+  "description": "Agence immobilière de luxe à Marrakech",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F7F3EE",
+  "theme_color": "#8B1A1A",
+  "lang": "fr-MA",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["real estate", "business"],
+  "screenshots": [
+    {
+      "src": "/og-home.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg"
+    }
+  ]
+}
