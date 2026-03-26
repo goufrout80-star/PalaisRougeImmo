@@ -60,3 +60,9 @@ tmp/
 # OS files
 Thumbs.db
 *.swp
+
+# Raw SQL dumps — never commit these
+supabase/migrations/12sqls.sql
+12sqls.sql
+*sqls.sql
+supabase/migrations/[^2]*.sql
