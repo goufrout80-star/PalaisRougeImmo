@@ -4,13 +4,14 @@ export const metadata: Metadata = {
   title: "Notre Équipe d'Agents Immobiliers Marrakech",
   description:
     "Rencontrez nos agents immobiliers experts à Marrakech. " +
-    "Spécialistes villas, riads et appartements de prestige.",
+    "Spécialistes villas, riads et appartements de prestige. " +
+    "Profitez d'un accompagnement personnalisé avec Palais Rouge Immo.",
   alternates: { canonical: 'https://palaisrouge.online/agents' },
   openGraph: {
     title: "Notre Équipe d'Agents Immobiliers Marrakech | Palais Rouge Immo",
     description: "Agents immobiliers experts spécialisés luxe à Marrakech.",
     url: 'https://palaisrouge.online/agents',
-    images: [{ url: '/og-home.jpg', width: 1200, height: 630 }],
+    images: [{ url: '/og-home.svg', width: 1200, height: 630 }],
   },
 };
 

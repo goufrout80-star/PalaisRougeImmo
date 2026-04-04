@@ -269,7 +269,7 @@ export default function AdminDashboardPage() {
           {/* Logo */}
           <div className="p-5 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[var(--rouge)] rounded-lg flex items-center justify-center"><span className="text-white font-bold text-sm">PR</span></div>
+              <Image src="/logo.svg" alt="Palais Rouge Immo" width={36} height={36} />
               <div>
                 <div className="font-display text-sm font-bold text-[var(--rouge)] leading-tight">Palais Rouge Immo</div>
                 <div className="text-[9px] text-[var(--gold-light)] font-semibold tracking-[0.2em] uppercase">Marrakech</div>

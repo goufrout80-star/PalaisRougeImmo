@@ -89,11 +89,11 @@ export const metadata: Metadata = {
       'Achat, vente, investissement avec Palais Rouge Immo.',
     images: [
       {
-        url: 'https://palaisrouge.online/og-home.jpg',
+        url: 'https://palaisrouge.online/og-home.svg',
         width: 1200,
         height: 630,
         alt: 'Palais Rouge Immo — Immobilier de Luxe Marrakech',
-        type: 'image/jpeg',
+        type: 'image/svg+xml',
       },
     ],
   },
@@ -103,7 +103,7 @@ export const metadata: Metadata = {
     creator: '@palaisrougeimmo',
     title: 'Palais Rouge Immo | Immobilier de Luxe Marrakech',
     description: "N°1 immobilier luxe Marrakech. Villas, riads, appartements.",
-    images: ['https://palaisrouge.online/og-home.jpg'],
+    images: ['https://palaisrouge.online/og-home.svg'],
   },
   robots: {
     index: true,
@@ -153,7 +153,7 @@ export default function RootLayout({
         <link rel="alternate" hrefLang="x-default" href="https://palaisrouge.online" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://jiqwqiztzsudjwdkbgoj.supabase.co" />
       </head>
       <body

@@ -48,6 +48,7 @@
     "rent": "إيجار",
     "sell": "بيع",
     "exclusivities": "حصريات",
+    "blog": "المدونة",
     "contact": "اتصل بنا",
     "browseHomes": "تصفح العقارات",
     "browseHomesDesc": "عرض جميع العقارات للبيع",
@@ -290,7 +291,9 @@
     "copyright": "© {year} Palais Rouge Immo. جميع الحقوق محفوظة.",
     "privacy": "الخصوصية",
     "terms": "الشروط",
-    "cookies": "ملفات تعريف الارتباط"
+    "cookies": "ملفات تعريف الارتباط",
+    "rentingGuide": "دليل الإيجار",
+    "sellingGuide": "دليل البيع"
   },
   "whyUs": {
     "title": "لماذا تختارنا",

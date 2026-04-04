@@ -9,7 +9,7 @@ export async function generateMetadata(
   const supabase = await createClient();
   const { data: property } = await supabase
     .from('properties')
-    .select('title, description, listing_type, property_type, neighborhood, city, price, bedrooms, bathrooms, surface_area, images, status, is_published, latitude, longitude')
+    .select('title_fr, description_fr, listing_type, property_type, neighborhood, city, price, bedrooms, bathrooms, area_sqm, images, status, is_published, latitude, longitude')
     .eq('id', id)
     .single();
 
@@ -20,10 +20,10 @@ export async function generateMetadata(
     };
   }
 
-  const listingLabel = property.listing_type === 'BUY' ? 'à vendre' : 'à louer';
+  const listingLabel = property.listing_type === 'sale' ? 'à vendre' : 'à louer';
   const typeLabel = property.property_type ?? 'Propriété';
   const location = [property.neighborhood, property.city].filter(Boolean).join(', ');
-  const title = `${property.title} — ${typeLabel} ${listingLabel} à ${location || 'Marrakech'}`;
+  const title = `${property.title_fr} — ${typeLabel} ${listingLabel} à ${location || 'Marrakech'}`;
   const priceFormatted = property.price
     ? `${Number(property.price).toLocaleString('fr-MA')} MAD`
     : '';
@@ -31,13 +31,13 @@ export async function generateMetadata(
     `${typeLabel} ${listingLabel} à ${location || 'Marrakech'}. ` +
     (priceFormatted ? `Prix : ${priceFormatted}. ` : '') +
     (property.bedrooms ? `${property.bedrooms} chambres. ` : '') +
-    (property.surface_area ? `${property.surface_area} m². ` : '') +
-    (property.description
-      ? property.description.slice(0, 120) + '...'
+    (property.area_sqm ? `${property.area_sqm} m². ` : '') +
+    (property.description_fr
+      ? property.description_fr.slice(0, 120) + '...'
       : "Palais Rouge Immo — agence immobilière de luxe à Marrakech.");
-  const image = (property.images as string[] | null)?.[0] ?? 'https://palaisrouge.online/og-default.jpg';
+  const image = (property.images as string[] | null)?.[0] ?? 'https://palaisrouge.online/og-default.svg';
   const url = `https://palaisrouge.online/properties/${id}`;
-  const shouldIndex = property.status === 'AVAILABLE' && property.is_published;
+  const shouldIndex = property.status === 'available' && property.is_published;
 
   return {
     title,

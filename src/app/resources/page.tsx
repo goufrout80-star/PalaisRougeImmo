@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Calendar, User, ArrowRight, Send } from 'lucide-react';
 import { useI18n } from '@/context/I18nContext';
 import { createClient } from '@/lib/supabase/client';
@@ -82,7 +83,7 @@ export default function ResourcesPage() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <div className="card-elegant overflow-hidden group cursor-pointer">
+                <Link href={`/resources/${post.slug}`} className="block card-elegant overflow-hidden group">
                   <div className="relative h-48 overflow-hidden">
                     <Image
                       src={post.cover_image || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600'}
@@ -100,7 +101,7 @@ export default function ResourcesPage() {
                       <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(post.published_at ?? post.created_at).toLocaleDateString('fr-FR')}</span>
                     </div>
                   </div>
-                </div>
+                </Link>
               </motion.div>
             ))
           }

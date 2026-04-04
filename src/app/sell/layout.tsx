@@ -4,13 +4,14 @@ export const metadata: Metadata = {
   title: "Vendre Votre Bien Immobilier à Marrakech",
   description:
     "Confiez la vente de votre villa, riad ou appartement à Marrakech " +
-    "à Palais Rouge Immo. Estimation gratuite. Réseau international.",
+    "à Palais Rouge Immo. Estimation gratuite, réseau international d'acheteurs " +
+    "et accompagnement complet jusqu'à la signature.",
   alternates: { canonical: 'https://palaisrouge.online/sell' },
   openGraph: {
     title: "Vendre Votre Bien Immobilier à Marrakech | Palais Rouge Immo",
     description: "Estimation gratuite et vente de votre bien immobilier à Marrakech.",
     url: 'https://palaisrouge.online/sell',
-    images: [{ url: '/og-home.jpg', width: 1200, height: 630 }],
+    images: [{ url: '/og-home.svg', width: 1200, height: 630 }],
   },
 };
 

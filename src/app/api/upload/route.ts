@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { uploadImage, deleteImage, UploadFolder } from '@/lib/cloudinary'
+import { requireAuth } from '@/lib/apiAuth'
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req, ['admin', 'agent'])
+  if (auth.error) return auth.error
+
   try {
     const formData = await req.formData()
     const file   = formData.get('file') as File | null
@@ -28,6 +32,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const auth = await requireAuth(req, ['admin', 'agent'])
+  if (auth.error) return auth.error
+
   try {
     const { publicId } = await req.json()
     if (!publicId) {

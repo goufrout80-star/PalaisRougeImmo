@@ -4,13 +4,14 @@ export const metadata: Metadata = {
   title: "Calculateur Prêt Immobilier Maroc",
   description:
     "Calculez vos mensualités et capacité d'emprunt pour votre " +
-    "achat immobilier au Maroc. Outil gratuit et instantané.",
+    "achat immobilier au Maroc. Outil gratuit et instantané. " +
+    "Simulez votre prêt immobilier avec Palais Rouge Immo, Marrakech.",
   alternates: { canonical: 'https://palaisrouge.online/calculator' },
   openGraph: {
     title: "Calculateur Prêt Immobilier Maroc | Palais Rouge Immo",
     description: "Calculez vos mensualités pour votre achat immobilier au Maroc.",
     url: 'https://palaisrouge.online/calculator',
-    images: [{ url: '/og-home.jpg', width: 1200, height: 630 }],
+    images: [{ url: '/og-home.svg', width: 1200, height: 630 }],
   },
 };
 

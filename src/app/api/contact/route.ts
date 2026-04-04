@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendContactNotification } from '@/lib/email'
+import { sanitizeString, sanitizeEmail, sanitizePhone, sanitizeUUID } from '@/lib/sanitize'
 
 export async function POST(req: NextRequest) {
   const supabaseAdmin = createClient(
@@ -10,10 +11,13 @@ export async function POST(req: NextRequest) {
   )
   try {
     const body = await req.json()
-    const {
-      name, email, phone, whatsapp,
-      message, propertyId, propertyTitle,
-    } = body
+    const name = sanitizeString(body.name, 100)
+    const email = sanitizeEmail(body.email)
+    const phone = sanitizePhone(body.phone)
+    const whatsapp = sanitizePhone(body.whatsapp)
+    const message = sanitizeString(body.message, 2000)
+    const propertyId = sanitizeUUID(body.propertyId)
+    const propertyTitle = sanitizeString(body.propertyTitle, 200)
 
     if (!name || !message) {
       return NextResponse.json(
@@ -66,8 +70,13 @@ export async function POST(req: NextRequest) {
     }
 
     sendContactNotification({
-      name, email, phone, whatsapp,
-      message, propertyTitle, propertyUrl,
+      name: name!,
+      email: email ?? undefined,
+      phone: phone ?? undefined,
+      whatsapp: whatsapp ?? undefined,
+      message: message!,
+      propertyTitle: propertyTitle ?? undefined,
+      propertyUrl,
       toEmail: agentEmail,
     }).catch((err) => console.error('[Resend] Email error:', err))
 

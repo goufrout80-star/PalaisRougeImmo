@@ -9,7 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from('properties')
       .select('id, updated_at, status')
       .eq('is_published', true)
-      .eq('status', 'AVAILABLE'),
+      .eq('status', 'available'),
     supabase
       .from('blog_posts')
       .select('slug, updated_at')
@@ -20,9 +20,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: 'https://palaisrouge.online', lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
     { url: 'https://palaisrouge.online/properties', lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
     { url: 'https://palaisrouge.online/search', lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
-    { url: 'https://palaisrouge.online/valuation', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: 'https://palaisrouge.online/valuation', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: 'https://palaisrouge.online/contact', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: 'https://palaisrouge.online/resources', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: 'https://palaisrouge.online/resources', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: 'https://palaisrouge.online/faq', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
     { url: 'https://palaisrouge.online/sell', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
     { url: 'https://palaisrouge.online/agents', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },

@@ -1,0 +1,19 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6B1212"/>
+      <stop offset="100%" style="stop-color:#1A1A1A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="8" height="630" fill="#B8962E"/>
+  <rect y="618" width="1200" height="12" fill="#B8962E"/>
+  <circle cx="1050" cy="100" r="200" fill="rgba(255,255,255,0.03)"/>
+  <circle cx="1100" cy="500" r="300" fill="rgba(184,150,46,0.05)"/>
+  <rect x="80" y="80" width="220" height="44" rx="22" fill="#B8962E"/>
+  <text x="110" y="109" font-family="Georgia,serif" font-size="18" font-weight="bold" fill="white">Nos Propriétés</text>
+  <text x="80" y="260" font-family="Georgia,serif" font-size="72" font-weight="bold" fill="white">PALAIS ROUGE</text>
+  <text x="80" y="345" font-family="Georgia,serif" font-size="72" font-weight="bold" fill="#B8962E">IMMO</text>
+  <text x="80" y="420" font-family="Arial,sans-serif" font-size="28" fill="rgba(255,255,255,0.80)">Villas · Riads · Appartements de Prestige</text>
+  <text x="80" y="550" font-family="Arial,sans-serif" font-size="22" fill="rgba(255,255,255,0.45)">palaisrouge.online</text>
+</svg>

@@ -387,6 +387,7 @@ export default function PropertyDetailClient() {
                   href={`https://wa.me/${(agentProfile?.whatsapp ?? agencyWhatsapp).replace(/\D/g, '')}?text=${encodeURIComponent(`Bonjour, je suis intéressé par : ${property.title} — ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`Contacter via WhatsApp pour ${property.title}`}
                   onClick={() => trackEvent('whatsapp_click', 'lead', property.title)}
                   className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-semibold rounded-xl transition-colors"
                 >
@@ -395,6 +396,7 @@ export default function PropertyDetailClient() {
                 </a>
                 <a
                   href={`tel:${agentProfile?.phone ?? agencyPhone}`}
+                  aria-label={`Appeler l'agent pour ${property.title}`}
                   onClick={() => trackEvent('call_click', 'lead', property.title)}
                   className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-[var(--rouge)] hover:bg-[var(--rouge-dark)] text-white font-semibold rounded-xl transition-colors"
                 >

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     description:
       "Villas, riads, appartements de prestige à vendre et à louer à Marrakech.",
     url: 'https://palaisrouge.online/properties',
-    images: [{ url: '/og-properties.jpg', width: 1200, height: 630 }],
+    images: [{ url: '/og-properties.svg', width: 1200, height: 630 }],
   },
 };
 

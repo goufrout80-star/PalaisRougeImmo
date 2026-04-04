@@ -48,6 +48,7 @@
     "rent": "Rent",
     "sell": "Sell",
     "exclusivities": "Exclusivities",
+    "blog": "Blog",
     "contact": "Contact",
     "browseHomes": "Browse Homes",
     "browseHomesDesc": "View all properties for sale",
@@ -290,7 +291,9 @@
     "copyright": "© {year} Palais Rouge Immo. All rights reserved.",
     "privacy": "Privacy",
     "terms": "Terms",
-    "cookies": "Cookies"
+    "cookies": "Cookies",
+    "rentingGuide": "Renting Guide",
+    "sellingGuide": "Selling Guide"
   },
   "whyUs": {
     "title": "Why Choose Us",

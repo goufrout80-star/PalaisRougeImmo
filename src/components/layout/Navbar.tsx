@@ -7,6 +7,7 @@ import {
   Home, MapPin, Star, DollarSign, Building2, BadgeCheck, BookOpen,
   TrendingUp, Briefcase, Users, FileText, Menu, X, User, LogOut, ChevronDown,
 } from 'lucide-react';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { useI18n } from '@/context/I18nContext';
 import LanguageCurrencySwitcher from '@/components/ui/LanguageCurrencySwitcher';
@@ -135,9 +136,7 @@ export default function Navbar() {
             {/* Center Logo */}
             <Link href="/" className="flex flex-col items-center">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[var(--rouge)] rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">PR</span>
-                </div>
+                <Image src="/logo.svg" alt="Palais Rouge Immo" width={36} height={36} priority />
                 <div>
                   <div className="font-display text-lg font-bold text-[var(--rouge)] leading-tight">
                     Palais Rouge Immo
@@ -156,6 +155,12 @@ export default function Navbar() {
                 className="px-4 py-2 text-sm font-medium text-[var(--rouge)] hover:text-[var(--gold)] transition-colors elegant-underline"
               >
                 {t('nav.exclusivities')}
+              </Link>
+              <Link
+                href="/resources"
+                className="px-4 py-2 text-sm font-medium text-[var(--rouge)] hover:text-[var(--gold)] transition-colors elegant-underline"
+              >
+                {t('nav.blog')}
               </Link>
               <Link
                 href="/contact"
@@ -236,6 +241,9 @@ export default function Navbar() {
               </Link>
               <Link href="/properties?featured=true" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 text-sm font-medium text-[var(--rouge)] hover:bg-[var(--parchment)] rounded-lg">
                 {t('nav.exclusivities')}
+              </Link>
+              <Link href="/resources" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 text-sm font-medium text-[var(--rouge)] hover:bg-[var(--parchment)] rounded-lg">
+                {t('nav.blog')}
               </Link>
               <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 text-sm font-medium text-[var(--rouge)] hover:bg-[var(--parchment)] rounded-lg">
                 {t('nav.contact')}

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Instagram, Linkedin, Twitter, Facebook, Send, MapPin, Phone, Mail } from 'lucide-react';
+import Image from 'next/image';
 import { useI18n } from '@/context/I18nContext';
 import { createClient } from '@/lib/supabase/client';
 
@@ -39,9 +40,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-[var(--gold)] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">PR</span>
-              </div>
+              <Image src="/logo.svg" alt="Palais Rouge Immo" width={36} height={36} />
               <div>
                 <div className="font-display text-lg font-bold leading-tight">Palais Rouge Immo</div>
                 <div className="text-[10px] text-[var(--gold)] font-semibold tracking-[0.2em] uppercase">Marrakech</div>
@@ -113,6 +112,9 @@ export default function Footer() {
                 { label: t('common.agents'), href: '/agents' },
                 { label: t('common.contact'), href: '/contact' },
                 { label: t('common.faq'), href: '/faq' },
+                { label: t('nav.blog'), href: '/resources' },
+                { label: t('footer.rentingGuide'), href: '/guide/renting' },
+                { label: t('footer.sellingGuide'), href: '/guide/selling' },
               ].map((link, i) => (
                 <Link key={i} href={link.href} className="block text-sm text-gray-400 hover:text-white transition-colors">
                   {link.label}

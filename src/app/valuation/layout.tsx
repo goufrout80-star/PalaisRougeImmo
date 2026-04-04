@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     title: "Estimation Gratuite Bien Immobilier Marrakech | Palais Rouge Immo",
     description: "Estimez gratuitement votre bien immobilier à Marrakech en 2 minutes.",
     url: 'https://palaisrouge.online/valuation',
-    images: [{ url: '/og-home.jpg', width: 1200, height: 630 }],
+    images: [{ url: '/og-home.svg', width: 1200, height: 630 }],
   },
 };
 

@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createCheckoutSession } from '@/lib/stripe';
 import { isServiceConfigured, env } from '@/lib/env';
+import { requireAuth } from '@/lib/apiAuth';
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req, ['admin', 'agent', 'any']);
+  if (auth.error) return auth.error;
+
   try {
     if (!isServiceConfigured('stripe') || !env.ENABLE_PAYMENTS) {
       return NextResponse.json({ error: 'Payments not enabled' }, { status: 503 });

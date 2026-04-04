@@ -16,7 +16,7 @@ export function RealEstateAgentJsonLd() {
             width: 200,
             height: 60,
           },
-          image: 'https://palaisrouge.online/og-home.jpg',
+          image: 'https://palaisrouge.online/og-home.svg',
           description:
             "Agence immobilière de luxe N°1 à Marrakech. " +
             "Spécialisée dans la vente et location de villas, " +
