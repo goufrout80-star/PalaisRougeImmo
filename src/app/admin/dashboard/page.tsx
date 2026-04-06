@@ -10,7 +10,6 @@ import {
   Plus, Pencil, Trash2, Eye, ChevronRight, Search, TrendingUp,
   Users, Send, ClipboardList, Check, Mail, MessageSquare, Filter, Download,
 } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import ImageUpload from '@/components/ImageUpload';
 import { useAuth } from '@/context/AuthContext';
 import { useI18n } from '@/context/I18nContext';
@@ -19,8 +18,6 @@ import { Property, BlogPost, FaqItem, FormEntry, SoldProperty, ContactInfo } fro
 import Button from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
 import { TableRowSkeleton } from '@/components/ui/Skeleton';
-
-const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
 type Section = 'dashboard' | 'properties-sell' | 'properties-rent' | 'blog' | 'faqs' | 'contact-social' | 'received-forms' | 'active-listings' | 'sold-properties' | 'valuations' | 'agents' | 'newsletter';
 
@@ -965,16 +962,16 @@ export default function AdminDashboardPage() {
                   <label className="block text-sm font-medium text-[var(--rouge)] mb-1.5">Extrait</label>
                   <textarea value={blogForm.excerpt} onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })} className="input-luxury min-h-[70px]" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--rouge)] mb-1.5">Contenu</label>
-                  <div data-color-mode="light">
-                    <MDEditor
-                      value={blogForm.content}
-                      onChange={(val) => setBlogForm(prev => ({ ...prev, content: val ?? '' }))}
-                      height={320}
-                      preview="edit"
-                    />
-                  </div>
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-[var(--rouge)] mb-1.5">Contenu (Markdown supporté)</label>
+                  <textarea
+                    value={blogForm.content ?? ''}
+                    onChange={(e) => setBlogForm(prev => ({ ...prev, content: e.target.value }))}
+                    rows={16}
+                    placeholder={"Écrivez le contenu en Markdown...\n# Titre\n## Sous-titre\n**Gras** *Italique*\n- Liste item"}
+                    className="w-full border border-[var(--border)] rounded-lg px-4 py-3 text-sm font-mono focus:outline-none focus:border-[var(--rouge)] resize-y bg-white leading-relaxed"
+                  />
+                  <p className="text-xs text-[var(--stone)]">Markdown supporté : **gras**, *italique*, # titres, - listes</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[var(--rouge)] mb-1.5">Image de couverture</label>
