@@ -54,9 +54,9 @@ export default function NewPropertyPage() {
     }
   }, [isLoading, isAuthenticated, user, router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addProperty({
+    await addProperty({
       ...form,
       price: Number(form.price) || 0,
       bedrooms: Number(form.bedrooms) || 0,

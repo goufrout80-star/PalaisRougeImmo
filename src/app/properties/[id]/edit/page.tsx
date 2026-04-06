@@ -53,9 +53,9 @@ export default function EditPropertyPage() {
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateProperty(property.id, {
+    await updateProperty(property.id, {
       ...(form as Record<string, unknown>),
       images,
       city: cityName || (form as Record<string, string>).city || '',
