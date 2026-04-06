@@ -11,6 +11,7 @@ import CookieConsent from "@/components/CookieConsent";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import AnalyticsPageView from "@/components/AnalyticsPageView";
 import { RealEstateAgentJsonLd } from "@/components/seo/JsonLd";
+import { PageTracker } from "@/components/PageTracker";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -171,6 +172,7 @@ export default function RootLayout({
               <Suspense fallback={null}>
                 <AnalyticsPageView />
               </Suspense>
+              <PageTracker />
             </PropertiesProvider>
           </I18nProvider>
         </AuthProvider>

@@ -134,33 +134,45 @@ export function PropertiesProvider({ children }: { children: React.ReactNode }) 
   }, [supabase]);
 
   const addProperty = useCallback(async (property: Omit<Property, 'id' | 'createdAt' | 'viewCount'>) => {
-    const { data, error } = await supabase
-      .from('properties')
-      .insert(toRow(property))
-      .select()
-      .single();
-    if (error) { console.error('[PropertiesContext] addProperty:', error); return null; }
-    await refreshProperties();
-    return fromRow(data);
-  }, [supabase, refreshProperties]);
+    try {
+      const res = await fetch('/api/properties', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(toRow(property)),
+      });
+      if (!res.ok) { const e = await res.json(); console.error('[PropertiesContext] addProperty:', e); return null; }
+      const data = await res.json();
+      await refreshProperties();
+      return fromRow(data);
+    } catch (err) { console.error('[PropertiesContext] addProperty:', err); return null; }
+  }, [refreshProperties]);
 
   const updateProperty = useCallback(async (id: string, updates: Partial<Property>) => {
     const current = properties.find(p => p.id === id);
     if (!current) return;
     const merged = { ...current, ...updates };
-    const { error } = await supabase
-      .from('properties')
-      .update({ ...toRow(merged), updated_at: new Date().toISOString() })
-      .eq('id', id);
-    if (error) { console.error('[PropertiesContext] updateProperty:', error); return; }
-    await refreshProperties();
-  }, [supabase, properties, refreshProperties]);
+    try {
+      const res = await fetch('/api/properties', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, ...toRow(merged) }),
+      });
+      if (!res.ok) { const e = await res.json(); console.error('[PropertiesContext] updateProperty:', e); return; }
+      await refreshProperties();
+    } catch (err) { console.error('[PropertiesContext] updateProperty:', err); }
+  }, [properties, refreshProperties]);
 
   const deleteProperty = useCallback(async (id: string) => {
-    const { error } = await supabase.from('properties').delete().eq('id', id);
-    if (error) { console.error('[PropertiesContext] deleteProperty:', error); return; }
-    setProperties(prev => prev.filter(p => p.id !== id));
-  }, [supabase]);
+    try {
+      const res = await fetch('/api/properties', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) { const e = await res.json(); console.error('[PropertiesContext] deleteProperty:', e); return; }
+      setProperties(prev => prev.filter(p => p.id !== id));
+    } catch (err) { console.error('[PropertiesContext] deleteProperty:', err); }
+  }, []);
 
   const getProperty = useCallback((id: string) => {
     return properties.find(p => p.id === id);

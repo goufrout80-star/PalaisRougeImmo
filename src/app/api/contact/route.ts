@@ -49,6 +49,28 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Log activity (fire-and-forget, never block)
+    void (async () => {
+      try {
+        await supabaseAdmin.from('activity_logs').insert({
+          event_type: 'contact_submitted',
+          event_category: 'lead',
+          event_label: name,
+          details: {
+            property_title: propertyTitle,
+            property_id: propertyId,
+            has_phone: !!phone,
+            has_whatsapp: !!whatsapp,
+            source: body.source ?? 'contact_form',
+          },
+          user_role: 'visitor',
+          ip_address: req.headers.get('x-forwarded-for')?.split(',')[0] ?? req.headers.get('x-real-ip') ?? 'unknown',
+          user_agent: req.headers.get('user-agent') ?? '',
+          device_type: /tablet|ipad/i.test(req.headers.get('user-agent') ?? '') ? 'tablet' : /mobile|android|iphone/i.test(req.headers.get('user-agent') ?? '') ? 'mobile' : 'desktop',
+        })
+      } catch { /* silent */ }
+    })()
+
     const origin = req.headers.get('origin') ?? 'https://palaisrouge.online'
     const propertyUrl = propertyId
       ? `${origin}/properties/${propertyId}`

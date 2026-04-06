@@ -7,6 +7,7 @@ import { User, Lock, AlertCircle } from 'lucide-react';
 import { useI18n } from '@/context/I18nContext';
 import Button from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
+import { logLogin } from '@/lib/logger';
 
 export default function LoginPage() {
   const { t } = useI18n();
@@ -34,6 +35,8 @@ export default function LoginPage() {
     const user = data.user;
     const role = user?.user_metadata?.role ?? '';
     const mfaSkipped = user?.user_metadata?.mfa_skipped;
+
+    logLogin(role, email);
 
     const { data: factors } = await supabase.auth.mfa.listFactors();
     const hasVerifiedFactor = factors?.totp?.some(

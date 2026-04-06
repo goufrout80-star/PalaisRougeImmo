@@ -132,6 +132,17 @@ export default function AgentDashboardPage() {
     Promise.all([loadStats(), loadProperties(), loadLeads(), check2FA()]).then(() => setLoading(false))
   }, [user])
 
+  // Real-time: contact submissions for agent's properties
+  useEffect(() => {
+    const channel = supabase
+      .channel('agent_contacts_realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_submissions' }, (payload) => {
+        setLeads(prev => [payload.new as any, ...prev])
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [supabase])
+
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab)
     if (tab === 'properties') loadProperties()
@@ -141,7 +152,7 @@ export default function AgentDashboardPage() {
 
   const handleDeleteProperty = async (id: string) => {
     if (!confirm('Supprimer cette propriété ?')) return
-    await supabase.from('properties').delete().eq('id', id)
+    await fetch('/api/properties', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
     setProperties((prev) => prev.filter((p) => p.id !== id))
     loadStats()
   }
@@ -198,7 +209,7 @@ export default function AgentDashboardPage() {
   }
 
   const handleMarkLeadRead = async (id: string) => {
-    await supabase.from('contact_submissions').update({ is_read: true }).eq('id', id)
+    await fetch('/api/admin/mutations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', table: 'contact_submissions', data: { is_read: true }, id }) })
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, is_read: true } : l)))
   }
 
@@ -439,7 +450,7 @@ export default function AgentDashboardPage() {
                                   onChange={(e) => setEditingPriceValue(e.target.value)}
                                   onKeyDown={async (e) => {
                                     if (e.key === 'Enter') {
-                                      await supabase.from('properties').update({ price: Number(editingPriceValue) }).eq('id', p.id)
+                                      await fetch('/api/properties', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.id, price: Number(editingPriceValue) }) })
                                       setProperties((prev) => prev.map((prop) => prop.id === p.id ? { ...prop, price: Number(editingPriceValue) } : prop))
                                       setEditingPriceId(null)
                                     }
@@ -449,7 +460,7 @@ export default function AgentDashboardPage() {
                                   className="w-28 border border-[var(--rouge)] rounded px-2 py-1 text-xs font-semibold text-[var(--rouge)] focus:outline-none"
                                 />
                                 <button onClick={async () => {
-                                  await supabase.from('properties').update({ price: Number(editingPriceValue) }).eq('id', p.id)
+                                  await fetch('/api/properties', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.id, price: Number(editingPriceValue) }) })
                                   setProperties((prev) => prev.map((prop) => prop.id === p.id ? { ...prop, price: Number(editingPriceValue) } : prop))
                                   setEditingPriceId(null)
                                 }} className="text-green-600 hover:text-green-700 p-1"><Check size={14} /></button>
@@ -470,7 +481,7 @@ export default function AgentDashboardPage() {
                               value={p.status?.toLowerCase() ?? 'available'}
                               onChange={async (e) => {
                                 const newStatus = e.target.value
-                                await supabase.from('properties').update({ status: newStatus }).eq('id', p.id)
+                                await fetch('/api/properties', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.id, status: newStatus }) })
                                 setProperties((prev) => prev.map((prop) => prop.id === p.id ? { ...prop, status: newStatus } : prop))
                               }}
                               className={`text-xs font-semibold px-2 py-1 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--rouge)] appearance-none ${

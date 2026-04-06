@@ -1,5 +1,8 @@
 'use client'
 
+import { useEffect } from 'react'
+import { logError } from '@/lib/logger'
+
 export default function Error({
   error,
   reset,
@@ -7,6 +10,10 @@ export default function Error({
   error: Error
   reset: () => void
 }) {
+  useEffect(() => {
+    logError(error.message, typeof window !== 'undefined' ? window.location.pathname : 'unknown')
+  }, [error])
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 text-center px-4">
       <h1 className="text-3xl font-display text-[var(--rouge)]">

@@ -19,6 +19,7 @@ import { createClient } from '@/lib/supabase/client';
 import { PropertyDetailSkeleton } from '@/components/ui/Skeleton';
 import { BreadcrumbJsonLd, PropertyJsonLd } from '@/components/seo/JsonLd';
 import { trackEvent } from '@/components/GoogleAnalytics';
+import { logWhatsAppClick, logCallClick, logPropertyView, logPropertyShare } from '@/lib/logger';
 
 export default function PropertyDetailClient() {
   const { t, formatCurrency } = useI18n();
@@ -48,6 +49,7 @@ export default function PropertyDetailClient() {
 
   const handleShare = async () => {
     const url = window.location.href;
+    if (property) logPropertyShare(property.id, property.title);
     if (navigator.share) {
       await navigator.share({ title: property?.title ?? '', url });
     } else {
@@ -63,6 +65,7 @@ export default function PropertyDetailClient() {
     if (property) {
       incrementViewCount(property.id);
       trackEvent('property_view', 'engagement', property.title);
+      logPropertyView(property.id, property.title);
     }
   }, [property?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -395,7 +398,7 @@ export default function PropertyDetailClient() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Contacter via WhatsApp pour ${property.title}`}
-                  onClick={() => trackEvent('whatsapp_click', 'lead', property.title)}
+                  onClick={() => { trackEvent('whatsapp_click', 'lead', property.title); logWhatsAppClick(property.title, property.id); }}
                   className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-semibold rounded-xl transition-colors"
                 >
                   <MessageCircle className="w-5 h-5" />
@@ -404,7 +407,7 @@ export default function PropertyDetailClient() {
                 <a
                   href={`tel:${agentProfile?.phone ?? agencyPhone}`}
                   aria-label={`Appeler l'agent pour ${property.title}`}
-                  onClick={() => trackEvent('call_click', 'lead', property.title)}
+                  onClick={() => { trackEvent('call_click', 'lead', property.title); logCallClick(property.title, property.id); }}
                   className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-[var(--rouge)] hover:bg-[var(--rouge-dark)] text-white font-semibold rounded-xl transition-colors"
                 >
                   <Phone className="w-5 h-5" />

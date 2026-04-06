@@ -9,6 +9,7 @@ import {
   Inbox, List, CheckCircle2, LogOut, Menu, X, ExternalLink,
   Plus, Pencil, Trash2, Eye, ChevronRight, Search, TrendingUp,
   Users, Send, ClipboardList, Check, Mail, MessageSquare, Filter, Download,
+  Activity, RefreshCw,
 } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
 import { useAuth } from '@/context/AuthContext';
@@ -18,8 +19,9 @@ import { Property, BlogPost, FaqItem, FormEntry, SoldProperty, ContactInfo } fro
 import Button from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
 import { TableRowSkeleton } from '@/components/ui/Skeleton';
+import { logAdminAction } from '@/lib/logger';
 
-type Section = 'dashboard' | 'properties-sell' | 'properties-rent' | 'blog' | 'faqs' | 'contact-social' | 'received-forms' | 'active-listings' | 'sold-properties' | 'valuations' | 'agents' | 'newsletter';
+type Section = 'dashboard' | 'properties-sell' | 'properties-rent' | 'blog' | 'faqs' | 'contact-social' | 'received-forms' | 'active-listings' | 'sold-properties' | 'valuations' | 'agents' | 'newsletter' | 'activity_log';
 
 const SIDEBAR_ITEMS: { group: string; items: { key: Section; label: string; icon: React.ElementType }[] }[] = [
   { group: '', items: [{ key: 'dashboard', label: 'admin.dashboard', icon: LayoutDashboard }] },
@@ -39,6 +41,7 @@ const SIDEBAR_ITEMS: { group: string; items: { key: Section; label: string; icon
     { key: 'valuations', label: 'admin.valuations', icon: ClipboardList },
     { key: 'active-listings', label: 'admin.activeListings', icon: List },
     { key: 'sold-properties', label: 'admin.soldProperties', icon: CheckCircle2 },
+    { key: 'activity_log', label: "Journal d'activit\u00e9", icon: Activity },
   ]},
 ];
 
@@ -98,6 +101,12 @@ export default function AdminDashboardPage() {
   // Inline price editing
   const [editingPriceId,    setEditingPriceId]    = useState<string | null>(null);
   const [editingPriceValue, setEditingPriceValue] = useState<string>('');
+
+  // Activity log state
+  const [activityLogs, setActivityLogs] = useState<any[]>([]);
+  const [logLoading, setLogLoading] = useState(true);
+  const [logFilter, setLogFilter] = useState<string>('all');
+  const [logTimeFilter, setLogTimeFilter] = useState<string>('1h');
 
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || user?.role !== 'admin')) {
@@ -161,7 +170,47 @@ export default function AdminDashboardPage() {
     }
   }, [supabase]);
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  const fetchLogs = useCallback(async (timeFilter = '1h') => {
+    setLogLoading(true);
+    const hours: Record<string, number> = { '30m': 0.5, '1h': 1, '2h': 2, '6h': 6, '24h': 24, '7d': 168 };
+    const hoursAgo = hours[timeFilter] ?? 1;
+    const since = new Date(Date.now() - hoursAgo * 60 * 60 * 1000).toISOString();
+    const { data } = await supabase
+      .from('activity_logs')
+      .select('*')
+      .gte('created_at', since)
+      .order('created_at', { ascending: false })
+      .limit(500);
+    setActivityLogs(data ?? []);
+    setLogLoading(false);
+  }, [supabase]);
+
+  useEffect(() => { fetchAll(); fetchLogs('1h'); }, [fetchAll, fetchLogs]);
+
+  // Real-time: activity logs
+  useEffect(() => {
+    const channel = supabase
+      .channel('activity_logs_realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity_logs' }, (payload) => {
+        setActivityLogs(prev => [payload.new as any, ...prev].slice(0, 500));
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [supabase]);
+
+  // Real-time: contact submissions
+  useEffect(() => {
+    const channel = supabase
+      .channel('contact_realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_submissions' }, (payload) => {
+        setFormEntries(prev => [payload.new as any, ...prev]);
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          new Notification('Nouveau contact — Palais Rouge', { body: `${(payload.new as any).name} a envoye un message` });
+        }
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [supabase]);
 
   if (isLoading || !user) {
     return <div className="min-h-screen flex items-center justify-center bg-[var(--parchment)]"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--gold-light)]" /></div>;
@@ -172,6 +221,78 @@ export default function AdminDashboardPage() {
   const totalRevenue = soldProperties.reduce((sum, p) => sum + p.price, 0);
   const totalViews = properties.reduce((sum, p) => sum + p.viewCount, 0);
 
+  // Activity log helpers
+  const getEventIcon = (eventType: string): React.ReactNode => {
+    const s = 'w-4 h-4';
+    const icons: Record<string, React.ReactNode> = {
+      page_view: <Eye className={`${s} text-blue-500`} />,
+      whatsapp_click: <MessageSquare className={`${s} text-green-600`} />,
+      call_click: <Phone className={`${s} text-amber-600`} />,
+      contact_submitted: <Mail className={`${s} text-green-700`} />,
+      valuation_submitted: <Building2 className={`${s} text-blue-600`} />,
+      newsletter_subscribe: <Mail className={`${s} text-pink-600`} />,
+      property_view: <Building2 className={`${s} text-amber-500`} />,
+      property_share: <ExternalLink className={`${s} text-indigo-500`} />,
+      search_performed: <Search className={`${s} text-indigo-600`} />,
+      user_login: <Key className={`${s} text-purple-600`} />,
+      user_logout: <LogOut className={`${s} text-purple-400`} />,
+      property_created: <Plus className={`${s} text-green-600`} />,
+      property_deleted: <Trash2 className={`${s} text-red-500`} />,
+      property_status_changed: <RefreshCw className={`${s} text-blue-500`} />,
+      blog_saved: <FileText className={`${s} text-blue-600`} />,
+      blog_created: <Plus className={`${s} text-green-600`} />,
+      blog_deleted: <Trash2 className={`${s} text-red-500`} />,
+      client_error: <X className={`${s} text-red-600`} />,
+    };
+    return icons[eventType] ?? <Activity className={`${s} text-gray-400`} />;
+  };
+  const getEventLabel = (log: any): string => {
+    const labels: Record<string, string> = {
+      page_view: 'Page visitee', whatsapp_click: 'Clic WhatsApp', call_click: 'Clic Appeler',
+      contact_submitted: 'Formulaire soumis', valuation_submitted: 'Estimation demandee',
+      newsletter_subscribe: 'Inscription newsletter', property_view: 'Propriete consultee',
+      property_share: 'Propriete partagee', search_performed: 'Recherche effectuee',
+      user_login: 'Connexion', user_logout: 'Deconnexion', property_created: 'Propriete creee',
+      property_deleted: 'Propriete supprimee', property_status_changed: 'Statut modifie',
+      blog_saved: 'Article sauvegarde', blog_created: 'Article cree', blog_deleted: 'Article supprime',
+      client_error: 'Erreur client',
+    };
+    return labels[log.event_type] ?? log.event_type;
+  };
+  const getCategoryStyle = (category: string): string => {
+    const styles: Record<string, string> = {
+      navigation: 'bg-blue-100 text-blue-700', contact: 'bg-rose-100 text-rose-700',
+      lead: 'bg-green-100 text-green-700', property: 'bg-amber-100 text-amber-700',
+      auth: 'bg-purple-100 text-purple-700', admin_action: 'bg-gray-100 text-gray-700',
+      error: 'bg-red-100 text-red-700', engagement: 'bg-pink-100 text-pink-700',
+      search: 'bg-indigo-100 text-indigo-700',
+    };
+    return styles[category] ?? 'bg-gray-100 text-gray-600';
+  };
+  const exportLogs = (timeFilter: string) => {
+    const logsToExport = logFilter === 'all' ? activityLogs : activityLogs.filter(l => l.event_category === logFilter);
+    const headers = ['Date','Heure','Type','Categorie','Label','Page','Appareil','Utilisateur','Email','IP','Erreur'].join(',');
+    const rows = logsToExport.map((l: any) => {
+      const d = new Date(l.created_at);
+      return [
+        d.toLocaleDateString('fr-MA'), d.toLocaleTimeString('fr-MA'),
+        l.event_type, l.event_category,
+        `"${(l.event_label ?? '').replace(/"/g, "'")}"`,
+        `"${(l.page_url ?? '').replace('https://www.palaisrouge.online', '')}"`,
+        l.device_type ?? '', l.user_role ?? 'visitor', l.user_email ?? '', l.ip_address ?? '',
+        l.is_error ? l.error_message ?? 'oui' : '',
+      ].join(',');
+    });
+    const csv = [headers, ...rows].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `journal-activite-${timeFilter}-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   // CRUD helpers
   const saveBlogPost = async (post: any) => {
     const slug = (post.title as string)
@@ -179,7 +300,7 @@ export default function AdminDashboardPage() {
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
-    const dbFields = {
+    const dbFields: Record<string, unknown> = {
       title_fr: post.title,
       excerpt_fr: post.excerpt,
       content_fr: post.content ?? '',
@@ -189,23 +310,37 @@ export default function AdminDashboardPage() {
         ? (post.publishedAt ?? new Date().toISOString())
         : null,
     };
-    if (post.id) {
-      await supabase.from('blog_posts').update(dbFields).eq('id', post.id);
-    } else {
-      await supabase.from('blog_posts').insert({ ...dbFields, slug });
-    }
+    if (post.id) dbFields.id = post.id;
+    else dbFields.slug = slug;
+    await fetch('/api/admin/blog', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dbFields),
+    });
+    logAdminAction(post.id ? 'blog_saved' : 'blog_created', 'blog', post.title);
     fetchAll();
   };
   const deleteBlogPost = async (id: string) => {
-    await supabase.from('blog_posts').delete().eq('id', id);
+    const blog = blogPosts.find(b => b.id === id);
+    await fetch('/api/admin/blog', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    logAdminAction('blog_deleted', 'blog', blog?.title_fr ?? blog?.title);
     setBlogPosts(prev => prev.filter(p => p.id !== id));
   };
   const toggleBlogPublish = async (id: string, current: boolean) => {
-    const { error } = await supabase.from('blog_posts').update({
-      is_published: !current,
-      published_at: !current ? new Date().toISOString() : null,
-    }).eq('id', id);
-    if (!error) {
+    const res = await fetch('/api/admin/blog', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id,
+        is_published: !current,
+        published_at: !current ? new Date().toISOString() : null,
+      }),
+    });
+    if (res.ok) {
       setBlogPosts(prev => prev.map(b =>
         b.id === id ? { ...b, is_published: !current } : b
       ));
@@ -214,22 +349,31 @@ export default function AdminDashboardPage() {
   const saveFaqs = async (items: FaqItem[]) => {
     setFaqs(items);
   };
+  const adminMutate = async (action: string, table: string, data?: any, id?: string) => {
+    const res = await fetch('/api/admin/mutations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, table, data, id }),
+    });
+    if (!res.ok) { console.error(`[admin] ${action} ${table} failed:`, await res.text()); return null; }
+    return res.json();
+  };
   const saveFaqToDB = async (item: FaqItem, isNew: boolean) => {
     if (isNew) {
-      const { data } = await supabase.from('faq_items').insert({
+      const data = await adminMutate('insert', 'faq_items', {
         question_fr: item.question, answer_fr: item.answer, category: item.category,
         is_published: true, sort_order: 0,
-      }).select().single();
+      });
       if (data) setFaqs(prev => [{ id: data.id, question: data.question_fr ?? '', answer: data.answer_fr ?? '', category: data.category ?? 'buying' }, ...prev]);
     } else {
-      await supabase.from('faq_items').update({
+      await adminMutate('update', 'faq_items', {
         question_fr: item.question, answer_fr: item.answer, category: item.category,
-      }).eq('id', item.id);
+      }, item.id);
       setFaqs(prev => prev.map(f => f.id === item.id ? { ...f, ...item } : f));
     }
   };
   const deleteFaqFromDB = async (id: string) => {
-    await supabase.from('faq_items').delete().eq('id', id);
+    await adminMutate('delete', 'faq_items', undefined, id);
     setFaqs(prev => prev.filter(f => f.id !== id));
   };
   const saveContactInfo = async (info: ContactInfo) => {
@@ -246,7 +390,7 @@ export default function AdminDashboardPage() {
       { key: 'twitter', value: info.twitter ?? '' },
     ];
     for (const row of rows) {
-      await supabase.from('site_settings').upsert(row, { onConflict: 'key' });
+      await adminMutate('upsert', 'site_settings', row);
     }
   };
   const sendPasswordReset = async (email: string, agentId: string) => {
@@ -487,7 +631,7 @@ export default function AdminDashboardPage() {
                                   onChange={(e) => setEditingPriceValue(e.target.value)}
                                   onKeyDown={async (e) => {
                                     if (e.key === 'Enter') {
-                                      await supabase.from('properties').update({ price: Number(editingPriceValue) }).eq('id', prop.id);
+                                      await adminMutate('update', 'properties', { price: Number(editingPriceValue) }, prop.id);
                                       setEditingPriceId(null);
                                       fetchAll();
                                     }
@@ -496,7 +640,7 @@ export default function AdminDashboardPage() {
                                   autoFocus
                                   className="w-28 border border-[var(--rouge)] rounded px-2 py-1 text-xs font-semibold text-[var(--rouge)] focus:outline-none"
                                 />
-                                <button onClick={async () => { await supabase.from('properties').update({ price: Number(editingPriceValue) }).eq('id', prop.id); setEditingPriceId(null); fetchAll(); }} className="text-green-600 hover:text-green-700 p-1"><Check className="w-3.5 h-3.5" /></button>
+                                <button onClick={async () => { await adminMutate('update', 'properties', { price: Number(editingPriceValue) }, prop.id); setEditingPriceId(null); fetchAll(); }} className="text-green-600 hover:text-green-700 p-1"><Check className="w-3.5 h-3.5" /></button>
                                 <button onClick={() => setEditingPriceId(null)} className="text-[var(--stone)] hover:text-red-500 p-1"><X className="w-3.5 h-3.5" /></button>
                               </div>
                             ) : (
@@ -511,7 +655,7 @@ export default function AdminDashboardPage() {
                             <select
                               value={prop.status?.toLowerCase() ?? 'available'}
                               onChange={async (e) => {
-                                await supabase.from('properties').update({ status: e.target.value }).eq('id', prop.id);
+                                await adminMutate('update', 'properties', { status: e.target.value }, prop.id);
                                 fetchAll();
                               }}
                               className={`px-2 py-1 rounded-md text-[10px] font-semibold border-0 cursor-pointer focus:outline-none appearance-none ${
@@ -531,7 +675,7 @@ export default function AdminDashboardPage() {
                             <div className="flex gap-1">
                               <Link href={`/properties/${prop.id}`} className="p-1.5 text-[var(--stone)] hover:text-[var(--rouge)] hover:bg-[var(--parchment)] rounded-lg transition-colors"><Eye className="w-3.5 h-3.5" /></Link>
                               <Link href={`/properties/${prop.id}/edit`} className="p-1.5 text-[var(--stone)] hover:text-[var(--gold-light)] hover:bg-[var(--parchment)] rounded-lg transition-colors"><Pencil className="w-3.5 h-3.5" /></Link>
-                              <button onClick={() => { if (confirm(t('property.deleteConfirm'))) deleteProperty(prop.id); }} className="p-1.5 text-[var(--stone)] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
+                              <button onClick={() => { if (confirm(t('property.deleteConfirm'))) { logAdminAction('property_deleted', 'property', prop.title); deleteProperty(prop.id); } }} className="p-1.5 text-[var(--stone)] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
                             </div>
                           </td>
                         </tr>
@@ -692,7 +836,7 @@ export default function AdminDashboardPage() {
                       {!entry.is_read && (
                         <button
                           onClick={async () => {
-                            await supabase.from('contact_submissions').update({ is_read: true }).eq('id', entry.id);
+                            await adminMutate('update', 'contact_submissions', { is_read: true }, entry.id);
                             setFormEntries(prev => prev.map(f => f.id === entry.id ? { ...f, is_read: true } : f));
                           }}
                           className="mt-3 text-xs text-[var(--gold-light)] hover:underline cursor-pointer"
@@ -831,7 +975,7 @@ export default function AdminDashboardPage() {
                             {!v.is_read ? (
                               <button
                                 onClick={async () => {
-                                  await supabase.from('valuation_requests').update({ is_read: true }).eq('id', v.id);
+                                  await adminMutate('update', 'valuation_requests', { is_read: true }, v.id);
                                   setValuations(prev => prev.map(x => x.id === v.id ? { ...x, is_read: true } : x));
                                 }}
                                 className="text-xs text-[var(--gold-light)] hover:underline cursor-pointer"
@@ -935,6 +1079,97 @@ export default function AdminDashboardPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Activity Log */}
+          {activeSection === 'activity_log' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <h2 className="text-2xl font-display font-bold text-[var(--noir)]">Journal d&apos;activit&eacute;</h2>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-1.5 text-xs text-green-600 font-semibold bg-green-50 px-3 py-1.5 rounded-full">
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    Temps r&eacute;el
+                  </div>
+                  {(['30m','1h','2h','6h','24h','7d'] as const).map(tf => (
+                    <button key={tf} onClick={() => { setLogTimeFilter(tf); fetchLogs(tf); }}
+                      className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${logTimeFilter === tf ? 'bg-[var(--rouge)] text-white' : 'bg-[var(--linen)] text-[var(--charcoal)]'}`}>{tf}</button>
+                  ))}
+                  <select value={logFilter} onChange={e => setLogFilter(e.target.value)}
+                    className="text-xs border border-[var(--border)] rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:border-[var(--rouge)]">
+                    <option value="all">Tout</option>
+                    <option value="lead">Leads</option>
+                    <option value="contact">Contact</option>
+                    <option value="property">Propri&eacute;t&eacute;s</option>
+                    <option value="navigation">Navigation</option>
+                    <option value="auth">Connexions</option>
+                    <option value="admin_action">Actions admin</option>
+                    <option value="error">Erreurs</option>
+                  </select>
+                  <button onClick={() => exportLogs(logTimeFilter)}
+                    className="flex items-center gap-2 text-xs bg-[var(--noir)] text-white px-3 py-1.5 rounded-lg font-medium hover:opacity-80 transition-opacity cursor-pointer">
+                    <Download size={13} /> Exporter CSV
+                  </button>
+                </div>
+              </div>
+
+              {/* Stats bar */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                {[
+                  { label: 'Visites', count: activityLogs.filter(l => l.event_type === 'page_view').length, color: 'text-blue-600', bg: 'bg-blue-50', icon: <Eye className="w-4 h-4 text-blue-400" /> },
+                  { label: 'Leads', count: activityLogs.filter(l => l.event_category === 'lead').length, color: 'text-green-600', bg: 'bg-green-50', icon: <Users className="w-4 h-4 text-green-400" /> },
+                  { label: 'WhatsApp', count: activityLogs.filter(l => l.event_type === 'whatsapp_click').length, color: 'text-[var(--rouge)]', bg: 'bg-rose-50', icon: <MessageSquare className="w-4 h-4 text-rose-400" /> },
+                  { label: 'Appels', count: activityLogs.filter(l => l.event_type === 'call_click').length, color: 'text-amber-600', bg: 'bg-amber-50', icon: <Phone className="w-4 h-4 text-amber-400" /> },
+                  { label: 'Erreurs', count: activityLogs.filter(l => l.is_error).length, color: 'text-red-600', bg: 'bg-red-50', icon: <X className="w-4 h-4 text-red-400" /> },
+                ].map(s => (
+                  <div key={s.label} className={`${s.bg} rounded-xl p-3 text-center`}>
+                    <div className="flex justify-center mb-1">{s.icon}</div>
+                    <p className={`text-2xl font-bold ${s.color}`}>{s.count}</p>
+                    <p className="text-xs text-[var(--muted)] mt-0.5">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Log entries */}
+              <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
+                {logLoading ? (
+                  <div className="p-8 text-center text-[var(--muted)] text-sm">Chargement...</div>
+                ) : (
+                  <div className="divide-y divide-[var(--border)] max-h-[600px] overflow-y-auto">
+                    {(logFilter === 'all' ? activityLogs : activityLogs.filter(l => l.event_category === logFilter)).map((entry: any) => (
+                      <div key={entry.id} className={`flex items-start gap-3 px-4 py-3 hover:bg-[var(--parchment)] transition-colors ${entry.is_error ? 'bg-red-50 border-l-2 border-red-400' : ''}`}>
+                        <span className="shrink-0 mt-0.5">{getEventIcon(entry.event_type)}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-medium text-[var(--noir)]">{getEventLabel(entry)}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getCategoryStyle(entry.event_category)}`}>{entry.event_category}</span>
+                            {entry.device_type && (
+                              <span className="text-xs text-[var(--muted)] flex items-center gap-1">
+                                {entry.device_type === 'mobile' ? <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> : <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>}
+                                {entry.device_type}
+                              </span>
+                            )}
+                          </div>
+                          {entry.event_label && <p className="text-xs text-[var(--muted)] mt-0.5 truncate">{entry.event_label}</p>}
+                          {entry.is_error && entry.error_message && <p className="text-xs text-red-600 mt-1 font-mono bg-red-50 px-2 py-1 rounded">{entry.error_message}</p>}
+                          <div className="flex items-center gap-3 mt-1">
+                            <span className="text-xs text-[var(--muted)]">{new Date(entry.created_at).toLocaleTimeString('fr-MA', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                            {entry.page_url && <span className="text-xs text-[var(--muted)] truncate max-w-[200px]">{entry.page_url.replace('https://www.palaisrouge.online', '').replace('https://palaisrouge.online', '')}</span>}
+                            {entry.user_email && <span className="text-xs text-[var(--rouge)] font-medium">{entry.user_email}</span>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {activityLogs.length === 0 && (
+                      <div className="p-12 text-center">
+                        <Activity className="w-10 h-10 text-[var(--muted-light)] mx-auto mb-3" />
+                        <p className="text-[var(--muted)] text-sm">Aucune activit&eacute; sur cette p&eacute;riode</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}
