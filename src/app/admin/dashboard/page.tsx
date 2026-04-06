@@ -806,6 +806,11 @@ export default function AdminDashboardPage() {
                           {!entry.is_read && <div className="w-2 h-2 rounded-full bg-blue-500" />}
                           <span className="font-medium text-[var(--rouge)]">{entry.name}</span>
                           <span className="px-2 py-0.5 bg-[var(--parchment)] rounded-md text-[10px] font-medium text-[var(--stone)]">{entry.source}</span>
+                          {entry.property_id ? (
+                            <span className="text-[10px] bg-[var(--rouge-tint)] text-[var(--rouge)] px-2 py-0.5 rounded-full font-medium">Propri&eacute;t&eacute;</span>
+                          ) : (
+                            <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Contact g&eacute;n&eacute;ral</span>
+                          )}
                         </div>
                         <span className="text-xs text-[var(--stone)]">{new Date(entry.created_at ?? entry.date).toLocaleDateString('fr-FR')}</span>
                       </div>

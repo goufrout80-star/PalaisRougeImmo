@@ -102,14 +102,12 @@ export default function AgentDashboardPage() {
   const loadLeads = useCallback(async () => {
     if (!user) return
     setLoadingLeads(true)
-    const { data: myProps } = await supabase.from('properties').select('id').eq('agent_id', user.id)
-    if (!myProps?.length) { setLeads([]); setLoadingLeads(false); return }
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('contact_submissions')
       .select('*')
-      .in('property_id', myProps.map((p: any) => p.id))
       .order('created_at', { ascending: false })
-      .limit(50)
+      .limit(100)
+    if (error) console.error('[Agent] leads error:', error)
     setLeads(data ?? [])
     setLoadingLeads(false)
   }, [user, supabase])
@@ -364,8 +362,15 @@ export default function AgentDashboardPage() {
                           {lead.name?.[0]?.toUpperCase() ?? '?'}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[var(--noir)] truncate">{lead.name}</p>
-                          <p className="text-xs text-[var(--muted)] truncate">{lead.property_title ?? 'Contact général'}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium text-[var(--noir)] truncate">{lead.name}</p>
+                            {lead.property_id ? (
+                              <span className="text-[10px] bg-[var(--rouge-tint)] text-[var(--rouge)] px-2 py-0.5 rounded-full font-medium shrink-0">Propri&eacute;t&eacute;</span>
+                            ) : (
+                              <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium shrink-0">Contact g&eacute;n&eacute;ral</span>
+                            )}
+                          </div>
+                          <p className="text-xs text-[var(--muted)] truncate">{lead.property_title ?? 'Contact g\u00e9n\u00e9ral'}</p>
                         </div>
                         {!lead.is_read && <span className="w-2 h-2 rounded-full bg-[var(--rouge)] shrink-0" />}
                       </div>
@@ -550,6 +555,11 @@ export default function AgentDashboardPage() {
                             <div className="flex items-center gap-2 flex-wrap">
                               <p className="font-semibold text-[var(--noir)]">{lead.name}</p>
                               {!lead.is_read && <span className="text-xs bg-[var(--rouge)] text-white px-2 py-0.5 rounded-full font-medium">Nouveau</span>}
+                              {lead.property_id ? (
+                                <span className="text-xs bg-[var(--rouge-tint)] text-[var(--rouge)] px-2 py-0.5 rounded-full font-medium">Propri&eacute;t&eacute;</span>
+                              ) : (
+                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Contact g&eacute;n&eacute;ral</span>
+                              )}
                             </div>
                             {lead.property_title && <p className="text-xs text-[var(--rouge)] mt-0.5">{lead.property_title}</p>}
                             <p className="text-sm text-[var(--charcoal)] mt-2">{lead.message}</p>
