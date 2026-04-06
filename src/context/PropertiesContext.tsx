@@ -29,8 +29,8 @@ const STATUS_REVERSE: Record<PropertyStatus, string> = {
   AVAILABLE: 'available', SOLD: 'sold', RENTED: 'rented', PENDING: 'reserved',
 };
 const PROP_TYPE_MAP: Record<string, PropertyType> = {
-  house: 'HOUSE', apartment: 'APARTMENT', villa: 'VILLA', land: 'LAND', commercial: 'COMMERCIAL',
-  HOUSE: 'HOUSE', APARTMENT: 'APARTMENT', VILLA: 'VILLA', LAND: 'LAND', COMMERCIAL: 'COMMERCIAL',
+  house: 'HOUSE', apartment: 'APARTMENT', villa: 'VILLA', land: 'LAND', commercial: 'COMMERCIAL', riad: 'RIAD',
+  HOUSE: 'HOUSE', APARTMENT: 'APARTMENT', VILLA: 'VILLA', LAND: 'LAND', COMMERCIAL: 'COMMERCIAL', RIAD: 'RIAD',
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,7 +63,7 @@ function fromRow(row: any): Property {
     images: row.images ?? [],
     featured: Boolean(row.is_featured),
     approved: Boolean(row.is_published),
-    viewCount: 0,
+    viewCount: row.view_count ?? 0,
     agentId: row.agent_id ?? '',
     agentName: row.agent_name ?? undefined,
     createdAt: row.created_at ?? new Date().toISOString(),

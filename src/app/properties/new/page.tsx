@@ -43,7 +43,7 @@ export default function NewPropertyPage() {
     hasGym: false,
     hasElevator: false,
     hasSecurity: false,
-    images: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800'],
+    images: [] as string[],
     featured: false,
     approved: true,
   });
@@ -134,6 +134,7 @@ export default function NewPropertyPage() {
                 <option value="HOUSE">{t('property.house')}</option>
                 <option value="APARTMENT">{t('property.apartment')}</option>
                 <option value="VILLA">{t('property.villa')}</option>
+                <option value="RIAD">Riad</option>
                 <option value="LAND">{t('property.land')}</option>
                 <option value="COMMERCIAL">{t('property.commercial')}</option>
               </select>

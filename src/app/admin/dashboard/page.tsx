@@ -8,8 +8,10 @@ import {
   LayoutDashboard, Building2, Key, FileText, HelpCircle, Phone,
   Inbox, List, CheckCircle2, LogOut, Menu, X, ExternalLink,
   Plus, Pencil, Trash2, Eye, ChevronRight, Search, TrendingUp,
-  Users, Send, ClipboardList, Check,
+  Users, Send, ClipboardList, Check, Mail, MessageSquare, Filter, Download,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import ImageUpload from '@/components/ImageUpload';
 import { useAuth } from '@/context/AuthContext';
 import { useI18n } from '@/context/I18nContext';
 import { useProperties } from '@/context/PropertiesContext';
@@ -18,7 +20,9 @@ import Button from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
 import { TableRowSkeleton } from '@/components/ui/Skeleton';
 
-type Section = 'dashboard' | 'properties-sell' | 'properties-rent' | 'blog' | 'faqs' | 'contact-social' | 'received-forms' | 'active-listings' | 'sold-properties' | 'valuations' | 'agents';
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
+
+type Section = 'dashboard' | 'properties-sell' | 'properties-rent' | 'blog' | 'faqs' | 'contact-social' | 'received-forms' | 'active-listings' | 'sold-properties' | 'valuations' | 'agents' | 'newsletter';
 
 const SIDEBAR_ITEMS: { group: string; items: { key: Section; label: string; icon: React.ElementType }[] }[] = [
   { group: '', items: [{ key: 'dashboard', label: 'admin.dashboard', icon: LayoutDashboard }] },
@@ -31,6 +35,7 @@ const SIDEBAR_ITEMS: { group: string; items: { key: Section; label: string; icon
   { group: 'admin.settings', items: [
     { key: 'contact-social', label: 'admin.contactSocial', icon: Phone },
     { key: 'agents', label: 'admin.agents', icon: Users },
+    { key: 'newsletter', label: 'Newsletter', icon: Mail },
   ]},
   { group: 'admin.activity', items: [
     { key: 'received-forms', label: 'admin.receivedForms', icon: Inbox },
@@ -58,9 +63,12 @@ export default function AdminDashboardPage() {
   const [agentsList, setAgentsList] = useState<any[]>([]);
   const [resetEmailStatus, setResetEmailStatus] = useState<Record<string, string>>({});
   const [dbStats, setDbStats] = useState({ totalProperties: 0, totalLeads: 0, totalValuations: 0 });
+  const [newsletterSubs, setNewsletterSubs] = useState<any[]>([]);
+  const [showUnreadOnly, setShowUnreadOnly] = useState(false);
   const [contactInfo, setContactInfo] = useState<ContactInfo>({
     email: 'contact@palaisrouge.online',
     phone: '+212 524 43 00 00',
+    whatsapp: '',
     address: 'Bd Abdelkrim Al Khattabi, Marrakech 40000, Morocco',
     mapsUrl: 'https://maps.google.com/?q=Marrakech+Morocco',
     instagram: 'https://instagram.com/palaisrougeimmo',
@@ -75,7 +83,15 @@ export default function AdminDashboardPage() {
   const [editingItem, setEditingItem] = useState<BlogPost | FaqItem | null>(null);
 
   // Blog form
-  const [blogForm, setBlogForm] = useState({ title: '', excerpt: '', author: '', status: 'draft' as 'published' | 'draft' });
+  const [blogForm, setBlogForm] = useState({
+    title: '',
+    excerpt: '',
+    author: '',
+    content: '',
+    coverImage: '',
+    isPublished: false,
+    publishedAt: null as string | null,
+  });
   // FAQ form
   const [faqForm, setFaqForm] = useState({ question: '', answer: '', category: 'buying' });
 
@@ -95,7 +111,7 @@ export default function AdminDashboardPage() {
   const fetchAll = useCallback(async () => {
     setLoadingData(true);
     try {
-      const [contactsRes, blogsRes, valuationsRes, settingsRes, faqsRes, agentsRes, countsRes] = await Promise.all([
+      const [contactsRes, blogsRes, valuationsRes, settingsRes, faqsRes, agentsRes, countsRes, soldRes, nlRes] = await Promise.all([
         supabase.from('contact_submissions').select('*').order('created_at', { ascending: false }),
         supabase.from('blog_posts').select('*').order('created_at', { ascending: false }),
         supabase.from('valuation_requests').select('*').order('created_at', { ascending: false }),
@@ -107,12 +123,18 @@ export default function AdminDashboardPage() {
           supabase.from('contact_submissions').select('*', { count: 'exact', head: true }),
           supabase.from('valuation_requests').select('*', { count: 'exact', head: true }),
         ]),
+        supabase.from('properties').select('*').eq('status', 'sold').order('updated_at', { ascending: false }),
+        supabase.from('newsletter').select('*').order('subscribed_at', { ascending: false }),
       ]);
       if (contactsRes.data) setFormEntries(contactsRes.data);
       if (blogsRes.data) setBlogPosts(blogsRes.data);
       if (valuationsRes.data) setValuations(valuationsRes.data);
-      if (faqsRes.data) setFaqs(faqsRes.data);
+      if (faqsRes.data) {
+        setFaqs(faqsRes.data.map((f: any) => ({ id: f.id, question: f.question_fr ?? f.question ?? '', answer: f.answer_fr ?? f.answer ?? '', category: f.category ?? 'buying' })));
+      }
       if (agentsRes.agents) setAgentsList(agentsRes.agents);
+      setSoldProperties((soldRes.data ?? []).map((p: any) => ({ id: p.id, title: p.title_fr ?? '', price: Number(p.price) || 0, buyer: '', buyerEmail: '', agent: '', soldDate: p.updated_at ?? p.created_at })));
+      setNewsletterSubs(nlRes.data ?? []);
       if (settingsRes.data) {
         const map: Record<string, string> = {};
         settingsRes.data.forEach(({ key, value }: { key: string; value: string }) => { map[key] = value; });
@@ -121,6 +143,8 @@ export default function AdminDashboardPage() {
           phone: map['agency_phone'] ?? prev.phone,
           email: map['agency_email'] ?? prev.email,
           address: map['agency_address'] ?? prev.address,
+          mapsUrl: map['maps_url'] ?? prev.mapsUrl,
+          whatsapp: map['agency_whatsapp'] ?? prev.whatsapp ?? '',
           instagram: map['instagram'] ?? prev.instagram,
           facebook: map['facebook'] ?? prev.facebook,
           linkedin: map['linkedin'] ?? prev.linkedin,
@@ -153,21 +177,25 @@ export default function AdminDashboardPage() {
 
   // CRUD helpers
   const saveBlogPost = async (post: any) => {
+    const slug = (post.title as string)
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    const dbFields = {
+      title_fr: post.title,
+      excerpt_fr: post.excerpt,
+      content_fr: post.content ?? '',
+      cover_image: post.coverImage || null,
+      is_published: Boolean(post.isPublished),
+      published_at: post.isPublished
+        ? (post.publishedAt ?? new Date().toISOString())
+        : null,
+    };
     if (post.id) {
-      await supabase.from('blog_posts').update({
-        title_fr: post.title,
-        excerpt_fr: post.excerpt,
-        content_fr: post.content ?? '',
-      }).eq('id', post.id);
+      await supabase.from('blog_posts').update(dbFields).eq('id', post.id);
     } else {
-      await supabase.from('blog_posts').insert({
-        title_fr: post.title,
-        excerpt_fr: post.excerpt,
-        content_fr: post.content ?? '',
-        slug: post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        is_published: post.status === 'published',
-        published_at: post.status === 'published' ? new Date().toISOString() : null,
-      });
+      await supabase.from('blog_posts').insert({ ...dbFields, slug });
     }
     fetchAll();
   };
@@ -176,11 +204,15 @@ export default function AdminDashboardPage() {
     setBlogPosts(prev => prev.filter(p => p.id !== id));
   };
   const toggleBlogPublish = async (id: string, current: boolean) => {
-    await supabase.from('blog_posts').update({
+    const { error } = await supabase.from('blog_posts').update({
       is_published: !current,
       published_at: !current ? new Date().toISOString() : null,
     }).eq('id', id);
-    fetchAll();
+    if (!error) {
+      setBlogPosts(prev => prev.map(b =>
+        b.id === id ? { ...b, is_published: !current } : b
+      ));
+    }
   };
   const saveFaqs = async (items: FaqItem[]) => {
     setFaqs(items);
@@ -188,13 +220,13 @@ export default function AdminDashboardPage() {
   const saveFaqToDB = async (item: FaqItem, isNew: boolean) => {
     if (isNew) {
       const { data } = await supabase.from('faq_items').insert({
-        question: item.question, answer: item.answer, category: item.category,
+        question_fr: item.question, answer_fr: item.answer, category: item.category,
         is_published: true, sort_order: 0,
       }).select().single();
-      if (data) setFaqs(prev => [data, ...prev]);
+      if (data) setFaqs(prev => [{ id: data.id, question: data.question_fr ?? '', answer: data.answer_fr ?? '', category: data.category ?? 'buying' }, ...prev]);
     } else {
       await supabase.from('faq_items').update({
-        question: item.question, answer: item.answer, category: item.category,
+        question_fr: item.question, answer_fr: item.answer, category: item.category,
       }).eq('id', item.id);
       setFaqs(prev => prev.map(f => f.id === item.id ? { ...f, ...item } : f));
     }
@@ -209,6 +241,8 @@ export default function AdminDashboardPage() {
       { key: 'agency_phone', value: info.phone },
       { key: 'agency_email', value: info.email },
       { key: 'agency_address', value: info.address },
+      { key: 'maps_url', value: info.mapsUrl ?? '' },
+      { key: 'agency_whatsapp', value: info.whatsapp ?? '' },
       { key: 'instagram', value: info.instagram ?? '' },
       { key: 'facebook', value: info.facebook ?? '' },
       { key: 'linkedin', value: info.linkedin ?? '' },
@@ -232,10 +266,23 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const openBlogModal = (post?: BlogPost) => {
+  const openBlogModal = (post?: any) => {
     setModalType('blog');
-    if (post) { setEditingItem(post); setBlogForm({ title: post.title, excerpt: post.excerpt, author: post.author, status: post.status }); }
-    else { setEditingItem(null); setBlogForm({ title: '', excerpt: '', author: '', status: 'draft' }); }
+    if (post) {
+      setEditingItem(post);
+      setBlogForm({
+        title: post.title_fr ?? post.title ?? '',
+        excerpt: post.excerpt_fr ?? post.excerpt ?? '',
+        author: post.author ?? '',
+        content: post.content_fr ?? '',
+        coverImage: post.cover_image ?? '',
+        isPublished: Boolean(post.is_published),
+        publishedAt: post.published_at ?? null,
+      });
+    } else {
+      setEditingItem(null);
+      setBlogForm({ title: '', excerpt: '', author: '', content: '', coverImage: '', isPublished: false, publishedAt: null });
+    }
     setShowModal(true);
   };
 
@@ -565,8 +612,9 @@ export default function AdminDashboardPage() {
                 <div className="space-y-4">
                   {[
                     { key: 'email', label: 'Email', type: 'email' },
-                    { key: 'phone', label: 'Phone', type: 'tel' },
-                    { key: 'address', label: 'Address', type: 'text' },
+                    { key: 'phone', label: 'Téléphone', type: 'tel' },
+                    { key: 'whatsapp', label: 'WhatsApp Agence', type: 'tel' },
+                    { key: 'address', label: 'Adresse', type: 'text' },
                     { key: 'mapsUrl', label: 'Google Maps URL', type: 'url' },
                     { key: 'instagram', label: 'Instagram', type: 'url' },
                     { key: 'facebook', label: 'Facebook', type: 'url' },
@@ -590,12 +638,27 @@ export default function AdminDashboardPage() {
           )}
 
           {/* Received Forms */}
-          {activeSection === 'received-forms' && (
+          {activeSection === 'received-forms' && (() => {
+            const filtered = showUnreadOnly ? formEntries.filter(f => !f.is_read) : formEntries;
+            const unreadCount = formEntries.filter(f => !f.is_read).length;
+            return (
             <div>
-              <h1 className="font-display text-2xl font-bold text-[var(--rouge)] mb-6">{t('admin.receivedForms')}</h1>
-              {formEntries.length > 0 ? (
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="font-display text-2xl font-bold text-[var(--rouge)]">{t('admin.receivedForms')}</h1>
+                <button
+                  onClick={() => setShowUnreadOnly(!showUnreadOnly)}
+                  className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${showUnreadOnly ? 'bg-[var(--rouge)] text-white' : 'bg-[var(--linen)] text-[var(--charcoal)]'}`}
+                >
+                  <Filter className="w-3.5 h-3.5" />
+                  {showUnreadOnly ? 'Tous' : 'Non lus seulement'}
+                  {!showUnreadOnly && unreadCount > 0 && (
+                    <span className="bg-[var(--rouge)] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{unreadCount}</span>
+                  )}
+                </button>
+              </div>
+              {filtered.length > 0 ? (
                 <div className="space-y-3">
-                  {formEntries.map(entry => (
+                  {filtered.map(entry => (
                     <div key={entry.id} className={`bg-white rounded-xl border p-5 ${!entry.is_read ? 'border-blue-200 bg-blue-50/30' : 'border-[var(--border)]'}`}>
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2">
@@ -606,9 +669,28 @@ export default function AdminDashboardPage() {
                         <span className="text-xs text-[var(--stone)]">{new Date(entry.created_at ?? entry.date).toLocaleDateString('fr-FR')}</span>
                       </div>
                       <p className="text-sm text-[var(--charcoal)] mb-3">{entry.message}</p>
-                      <div className="flex items-center gap-4 text-xs text-[var(--stone)]">
-                        <span>{entry.email}</span>
-                        {entry.phone && <span>{entry.phone}</span>}
+                      <div className="flex items-center justify-between flex-wrap gap-3">
+                        <div className="flex items-center gap-4 text-xs text-[var(--stone)]">
+                          <span>{entry.email}</span>
+                          {entry.phone && <span>{entry.phone}</span>}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {entry.email && (
+                            <a href={`mailto:${entry.email}?subject=Re: Votre demande — Palais Rouge Immo`} className="flex items-center gap-1.5 text-xs bg-[var(--parchment)] text-[var(--rouge)] px-2 py-1 rounded-lg hover:bg-[var(--rouge)] hover:text-white transition-colors font-medium">
+                              <Mail className="w-3 h-3" /> Email
+                            </a>
+                          )}
+                          {entry.phone && (
+                            <a href={`tel:${entry.phone}`} className="flex items-center gap-1.5 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-lg hover:bg-green-100 transition-colors font-medium">
+                              <Phone className="w-3 h-3" /> Appeler
+                            </a>
+                          )}
+                          {entry.whatsapp && (
+                            <a href={`https://wa.me/${entry.whatsapp.replace(/\D/g, '')}?text=Bonjour ${entry.name}, suite à votre demande sur Palais Rouge Immo...`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs bg-green-500 text-white px-2 py-1 rounded-lg hover:bg-green-600 transition-colors font-medium">
+                              <MessageSquare className="w-3 h-3" /> WhatsApp
+                            </a>
+                          )}
+                        </div>
                       </div>
                       {!entry.is_read && (
                         <button
@@ -631,7 +713,8 @@ export default function AdminDashboardPage() {
                 </div>
               )}
             </div>
-          )}
+            );
+          })()}
 
           {/* Active Listings */}
           {activeSection === 'active-listings' && (
@@ -730,6 +813,18 @@ export default function AdminDashboardPage() {
                           <td className="p-3 text-[var(--stone)]">
                             <div>{v.email}</div>
                             {v.phone && <div className="text-xs">{v.phone}</div>}
+                            <div className="flex items-center gap-1.5 mt-1.5">
+                              {v.email && (
+                                <a href={`mailto:${v.email}?subject=Re: Votre demande d'estimation — Palais Rouge Immo`} className="flex items-center gap-1 text-[10px] bg-[var(--parchment)] text-[var(--rouge)] px-1.5 py-0.5 rounded hover:bg-[var(--rouge)] hover:text-white transition-colors font-medium">
+                                  <Mail className="w-2.5 h-2.5" /> Email
+                                </a>
+                              )}
+                              {v.phone && (
+                                <a href={`tel:${v.phone}`} className="flex items-center gap-1 text-[10px] bg-green-50 text-green-700 px-1.5 py-0.5 rounded hover:bg-green-100 transition-colors font-medium">
+                                  <Phone className="w-2.5 h-2.5" /> Appeler
+                                </a>
+                              )}
+                            </div>
                           </td>
                           <td className="p-3"><span className="tag-luxury text-[10px]">{v.property_type}</span></td>
                           <td className="p-3 text-[var(--stone)]">{v.location}</td>
@@ -757,6 +852,54 @@ export default function AdminDashboardPage() {
                 </table>
                 {!loadingData && valuations.length === 0 && (
                   <div className="p-12 text-center text-[var(--stone)]">Aucune demande d&apos;estimation.</div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Newsletter */}
+          {activeSection === 'newsletter' && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="font-display text-2xl font-bold text-[var(--rouge)]">Newsletter</h1>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-[var(--stone)]">{newsletterSubs.length} abonné{newsletterSubs.length !== 1 ? 's' : ''}</span>
+                  {newsletterSubs.length > 0 && (
+                    <button
+                      onClick={() => {
+                        const csv = ['Email,Date inscription', ...newsletterSubs.map((s: any) => `${s.email},${new Date(s.subscribed_at).toLocaleDateString('fr-MA')}`)].join('\n');
+                        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url; a.download = 'abonnes-newsletter.csv'; a.click();
+                        URL.revokeObjectURL(url);
+                      }}
+                      className="flex items-center gap-1.5 text-sm bg-[var(--rouge)] text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity font-medium cursor-pointer"
+                    >
+                      <Download className="w-3.5 h-3.5" /> Exporter CSV
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-[var(--parchment)] text-[var(--stone)]">
+                    <tr>
+                      <th className="text-left p-3 font-medium">Email</th>
+                      <th className="text-left p-3 font-medium">Date d&apos;inscription</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {newsletterSubs.map((sub: any) => (
+                      <tr key={sub.email} className="border-t border-[var(--border)]">
+                        <td className="p-3 font-medium text-[var(--rouge)]">{sub.email}</td>
+                        <td className="p-3 text-[var(--stone)]">{new Date(sub.subscribed_at).toLocaleDateString('fr-FR')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {newsletterSubs.length === 0 && (
+                  <div className="p-12 text-center text-[var(--stone)]">Aucun abonné pour le moment.</div>
                 )}
               </div>
             </div>
@@ -815,24 +958,55 @@ export default function AdminDashboardPage() {
             {modalType === 'blog' && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-[var(--rouge)] mb-1.5">Title</label>
+                  <label className="block text-sm font-medium text-[var(--rouge)] mb-1.5">Titre</label>
                   <input type="text" value={blogForm.title} onChange={(e) => setBlogForm({ ...blogForm, title: e.target.value })} className="input-luxury" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[var(--rouge)] mb-1.5">Excerpt</label>
-                  <textarea value={blogForm.excerpt} onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })} className="input-luxury min-h-[80px]" />
+                  <label className="block text-sm font-medium text-[var(--rouge)] mb-1.5">Extrait</label>
+                  <textarea value={blogForm.excerpt} onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })} className="input-luxury min-h-[70px]" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[var(--rouge)] mb-1.5">Author</label>
-                  <input type="text" value={blogForm.author} onChange={(e) => setBlogForm({ ...blogForm, author: e.target.value })} className="input-luxury" />
+                  <label className="block text-sm font-medium text-[var(--rouge)] mb-1.5">Contenu</label>
+                  <div data-color-mode="light">
+                    <MDEditor
+                      value={blogForm.content}
+                      onChange={(val) => setBlogForm(prev => ({ ...prev, content: val ?? '' }))}
+                      height={320}
+                      preview="edit"
+                    />
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[var(--rouge)] mb-1.5">Status</label>
-                  <select value={blogForm.status} onChange={(e) => setBlogForm({ ...blogForm, status: e.target.value as 'published' | 'draft' })} className="input-luxury">
-                    <option value="draft">{t('admin.draft')}</option>
-                    <option value="published">{t('admin.published')}</option>
-                  </select>
+                  <label className="block text-sm font-medium text-[var(--rouge)] mb-1.5">Image de couverture</label>
+                  <ImageUpload
+                    images={blogForm.coverImage ? [blogForm.coverImage] : []}
+                    onChange={(imgs) => setBlogForm(prev => ({ ...prev, coverImage: imgs[0] ?? '' }))}
+                    folder="blog"
+                  />
                 </div>
+                <div className="flex items-center gap-3">
+                  <label className="text-sm font-medium text-[var(--charcoal)]">Statut</label>
+                  <button
+                    type="button"
+                    onClick={() => setBlogForm(prev => ({ ...prev, isPublished: !prev.isPublished }))}
+                    className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors cursor-pointer ${
+                      blogForm.isPublished ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    {blogForm.isPublished ? 'Publié' : 'Brouillon'}
+                  </button>
+                </div>
+                {blogForm.isPublished && (
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--charcoal)] mb-1">Date de publication</label>
+                    <input
+                      type="date"
+                      value={blogForm.publishedAt?.split('T')[0] ?? ''}
+                      onChange={(e) => setBlogForm(prev => ({ ...prev, publishedAt: e.target.value ? new Date(e.target.value).toISOString() : null }))}
+                      className="border border-[var(--border)] rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:border-[var(--rouge)]"
+                    />
+                  </div>
+                )}
                 <Button onClick={handleSaveBlog} className="w-full">{t('common.save')}</Button>
               </div>
             )}

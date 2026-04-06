@@ -15,7 +15,7 @@ export interface User {
 }
 
 export type ListingType = 'BUY' | 'RENT';
-export type PropertyType = 'HOUSE' | 'APARTMENT' | 'VILLA' | 'LAND' | 'COMMERCIAL';
+export type PropertyType = 'HOUSE' | 'APARTMENT' | 'VILLA' | 'LAND' | 'COMMERCIAL' | 'RIAD';
 export type PropertyStatus = 'AVAILABLE' | 'PENDING' | 'SOLD' | 'RENTED';
 
 export interface Property {
@@ -105,6 +105,7 @@ export interface SoldProperty {
 export interface ContactInfo {
   email: string;
   phone: string;
+  whatsapp: string;
   address: string;
   mapsUrl: string;
   instagram: string;

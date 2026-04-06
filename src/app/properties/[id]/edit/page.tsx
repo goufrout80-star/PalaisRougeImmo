@@ -9,6 +9,7 @@ import { useI18n } from '@/context/I18nContext';
 import { useProperties } from '@/context/PropertiesContext';
 import { ListingType, PropertyType, PropertyStatus } from '@/types';
 import Button from '@/components/ui/Button';
+import ImageUpload from '@/components/ImageUpload';
 import { CityNeighborhoodSelect } from '@/components/ui/CityNeighborhoodSelect';
 
 export default function EditPropertyPage() {
@@ -20,6 +21,7 @@ export default function EditPropertyPage() {
 
   const property = getProperty(params.id as string);
   const [form, setForm] = useState(property || ({} as Record<string, unknown>));
+  const [images, setImages] = useState<string[]>(property?.images ?? []);
 
   const [cityId, setCityId] = useState('');
   const [cityName, setCityName] = useState('');
@@ -28,6 +30,7 @@ export default function EditPropertyPage() {
   useEffect(() => {
     if (property) {
       setForm(property);
+      setImages(property.images ?? []);
       setCityName((property.city as string) ?? '');
       setNeighborhood((property.neighborhood as string) ?? '');
     }
@@ -53,8 +56,9 @@ export default function EditPropertyPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateProperty(property.id, {
-      ...form,
-      city: cityName || (form.city as string) || '',
+      ...(form as Record<string, unknown>),
+      images,
+      city: cityName || (form as Record<string, string>).city || '',
       neighborhood,
     });
     router.push(`/properties/${property.id}`);
@@ -99,8 +103,37 @@ export default function EditPropertyPage() {
                 value={(form as Record<string, string>).description || ''}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 className="input-luxury min-h-[100px]"
-                required
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[var(--noir)] mb-1.5">
+                {t('search.listingType')}
+              </label>
+              <select
+                value={(form as Record<string, string>).listingType || 'BUY'}
+                onChange={(e) => setForm({ ...form, listingType: e.target.value as ListingType })}
+                className="input-luxury"
+              >
+                <option value="BUY">{t('common.buy')}</option>
+                <option value="RENT">{t('common.rent')}</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[var(--noir)] mb-1.5">
+                {t('search.propertyType')}
+              </label>
+              <select
+                value={(form as Record<string, string>).propertyType || 'APARTMENT'}
+                onChange={(e) => setForm({ ...form, propertyType: e.target.value as PropertyType })}
+                className="input-luxury"
+              >
+                <option value="HOUSE">{t('property.house')}</option>
+                <option value="APARTMENT">{t('property.apartment')}</option>
+                <option value="VILLA">{t('property.villa')}</option>
+                <option value="RIAD">Riad</option>
+                <option value="LAND">{t('property.land')}</option>
+                <option value="COMMERCIAL">{t('property.commercial')}</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-[var(--noir)] mb-1.5">
@@ -216,6 +249,43 @@ export default function EditPropertyPage() {
                 className="input-luxury"
                 placeholder="-7.9811"
               />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-[var(--noir)] mb-3">Images</label>
+              <ImageUpload
+                images={images}
+                onChange={setImages}
+                folder="properties"
+              />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-[var(--noir)] mb-3">
+                {t('property.amenities')}
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { key: 'hasPool', label: t('property.pool') },
+                  { key: 'hasParking', label: t('property.parking') },
+                  { key: 'hasGarden', label: t('property.garden') },
+                  { key: 'hasAC', label: t('property.ac') },
+                  { key: 'hasGym', label: t('property.gym') },
+                  { key: 'hasElevator', label: t('property.elevator') },
+                  { key: 'hasSecurity', label: t('property.security') },
+                ].map((a) => (
+                  <button
+                    key={a.key}
+                    type="button"
+                    onClick={() => setForm({ ...form, [a.key]: !(form as Record<string, unknown>)[a.key] })}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                      (form as Record<string, unknown>)[a.key]
+                        ? 'bg-[var(--noir)] text-white border-[var(--noir)]'
+                        : 'border-[var(--border)] text-[var(--stone)] hover:border-[var(--gold)]'
+                    }`}
+                  >
+                    {a.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           <div className="flex gap-3 pt-4">
