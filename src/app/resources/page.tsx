@@ -85,13 +85,20 @@ export default function ResourcesPage() {
               >
                 <Link href={`/resources/${post.slug}`} className="block card-elegant overflow-hidden group">
                   <div className="relative h-48 overflow-hidden">
-                    <Image
-                      src={post.cover_image || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600'}
-                      alt={post.title_fr ?? ''}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                    />
+                    {post.cover_image ? (
+                      <Image
+                        src={post.cover_image}
+                        alt={post.title_fr ?? ''}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
+                    ) : (
+                      <div className="w-full h-48 bg-[var(--linen)] flex flex-col items-center justify-center gap-2">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--muted)] opacity-40"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                        <span className="text-xs text-[var(--muted)] opacity-60">Aucune image</span>
+                      </div>
+                    )}
                     {post.category && <span className="absolute top-3 left-3 px-2.5 py-1 bg-[var(--gold-light)] text-white text-xs font-medium rounded-md">{post.category}</span>}
                   </div>
                   <div className="p-5">

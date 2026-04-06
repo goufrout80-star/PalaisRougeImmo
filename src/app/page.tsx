@@ -143,34 +143,19 @@ export default function HomePage() {
               className="hidden lg:grid grid-cols-2 gap-4"
             >
               <div className="space-y-4">
-                <div className="img-zoom h-48 rounded-2xl overflow-hidden">
-                  <Image
-                    src="https://images.unsplash.com/photo-1613977257363-707ba9348227?w=600"
-                    alt="Luxury villa"
-                    width={600}
-                    height={400}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="h-48 rounded-2xl overflow-hidden bg-[var(--linen)] flex flex-col items-center justify-center gap-2">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-[var(--muted)] opacity-30"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  <span className="text-xs text-[var(--muted)] opacity-50 font-medium">Villa de luxe</span>
                 </div>
-                <div className="img-zoom h-64 rounded-2xl overflow-hidden">
-                  <Image
-                    src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600"
-                    alt="Modern apartment"
-                    width={600}
-                    height={400}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="h-64 rounded-2xl overflow-hidden bg-[var(--linen)] flex flex-col items-center justify-center gap-2">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-[var(--muted)] opacity-30"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                  <span className="text-xs text-[var(--muted)] opacity-50 font-medium">Appartement moderne</span>
                 </div>
               </div>
               <div className="pt-8">
-                <div className="img-zoom h-72 rounded-2xl overflow-hidden">
-                  <Image
-                    src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600"
-                    alt="Luxury property"
-                    width={600}
-                    height={500}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="h-72 rounded-2xl overflow-hidden bg-[var(--linen)] flex flex-col items-center justify-center gap-2">
+                  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-[var(--muted)] opacity-30"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  <span className="text-xs text-[var(--muted)] opacity-50 font-medium">Propriété de prestige</span>
                 </div>
               </div>
             </motion.div>

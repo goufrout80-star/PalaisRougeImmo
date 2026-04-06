@@ -141,10 +141,11 @@ export default function EditPropertyPage() {
               </label>
               <input
                 type="number"
-                value={(form as Record<string, number>).price || 0}
-                onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+                value={Number((form as Record<string, unknown>).price) === 0 ? '' : String((form as Record<string, unknown>).price ?? '')}
+                onChange={(e) => setForm({ ...form, price: e.target.value === '' ? '' : Number(e.target.value) })}
                 className="input-luxury"
-                required
+                placeholder="Ex: 2500000"
+                min="0"
               />
             </div>
             <div>
@@ -168,9 +169,11 @@ export default function EditPropertyPage() {
               </label>
               <input
                 type="number"
-                value={(form as Record<string, number>).surfaceArea || 0}
-                onChange={(e) => setForm({ ...form, surfaceArea: Number(e.target.value) })}
+                value={Number((form as Record<string, unknown>).surfaceArea) === 0 ? '' : String((form as Record<string, unknown>).surfaceArea ?? '')}
+                onChange={(e) => setForm({ ...form, surfaceArea: e.target.value === '' ? '' : Number(e.target.value) })}
                 className="input-luxury"
+                placeholder="Ex: 120"
+                min="0"
               />
             </div>
             <div>
@@ -179,9 +182,11 @@ export default function EditPropertyPage() {
               </label>
               <input
                 type="number"
-                value={(form as Record<string, number>).bedrooms || 0}
-                onChange={(e) => setForm({ ...form, bedrooms: Number(e.target.value) })}
+                value={Number((form as Record<string, unknown>).bedrooms) === 0 ? '' : String((form as Record<string, unknown>).bedrooms ?? '')}
+                onChange={(e) => setForm({ ...form, bedrooms: e.target.value === '' ? '' : Number(e.target.value) })}
                 className="input-luxury"
+                placeholder="Ex: 3"
+                min="0"
               />
             </div>
             <div>
@@ -190,9 +195,11 @@ export default function EditPropertyPage() {
               </label>
               <input
                 type="number"
-                value={(form as Record<string, number>).bathrooms || 0}
-                onChange={(e) => setForm({ ...form, bathrooms: Number(e.target.value) })}
+                value={Number((form as Record<string, unknown>).bathrooms) === 0 ? '' : String((form as Record<string, unknown>).bathrooms ?? '')}
+                onChange={(e) => setForm({ ...form, bathrooms: e.target.value === '' ? '' : Number(e.target.value) })}
                 className="input-luxury"
+                placeholder="Ex: 2"
+                min="0"
               />
             </div>
             <div className="col-span-2">

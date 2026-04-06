@@ -132,6 +132,13 @@ export default function AgentDashboardPage() {
     Promise.all([loadStats(), loadProperties(), loadLeads(), check2FA()]).then(() => setLoading(false))
   }, [user])
 
+  const handleTabChange = (tab: Tab) => {
+    setActiveTab(tab)
+    if (tab === 'properties') loadProperties()
+    if (tab === 'leads') loadLeads()
+    if (tab === 'overview') { loadStats(); loadProperties(); loadLeads() }
+  }
+
   const handleDeleteProperty = async (id: string) => {
     if (!confirm('Supprimer cette propriété ?')) return
     await supabase.from('properties').delete().eq('id', id)
@@ -233,7 +240,7 @@ export default function AgentDashboardPage() {
             return (
               <button
                 key={item.id}
-                onClick={() => { setActiveTab(item.id); setSidebarOpen(false) }}
+                onClick={() => { handleTabChange(item.id); setSidebarOpen(false) }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm mb-0.5 transition-colors cursor-pointer ${
                   isActive ? 'bg-[var(--rouge)] text-white' : 'text-[var(--charcoal)] hover:bg-[var(--parchment)]'
                 }`}
@@ -327,7 +334,7 @@ export default function AgentDashboardPage() {
               <div className="bg-white rounded-xl border border-[var(--border)] p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-semibold text-[var(--noir)]">Derniers leads</h2>
-                  <button onClick={() => setActiveTab('leads')} className="text-xs text-[var(--rouge)] hover:underline">
+                  <button onClick={() => handleTabChange('leads')} className="text-xs text-[var(--rouge)] hover:underline">
                     Voir tout →
                   </button>
                 </div>
@@ -364,7 +371,7 @@ export default function AgentDashboardPage() {
                     <Plus size={20} className="text-[var(--rouge)]" />
                     <span className="text-sm font-medium text-[var(--charcoal)]">Nouvelle propriété</span>
                   </Link>
-                  <button onClick={() => setActiveTab('leads')} className="flex items-center gap-3 p-4 border border-[var(--border)] rounded-xl hover:border-[var(--rouge)] hover:bg-[var(--rouge-tint)] transition-colors">
+                  <button onClick={() => handleTabChange('leads')} className="flex items-center gap-3 p-4 border border-[var(--border)] rounded-xl hover:border-[var(--rouge)] hover:bg-[var(--rouge-tint)] transition-colors">
                     <MessageSquare size={20} className="text-[var(--rouge)]" />
                     <span className="text-sm font-medium text-[var(--charcoal)]">Voir les leads</span>
                   </button>
@@ -451,7 +458,7 @@ export default function AgentDashboardPage() {
                             ) : (
                               <div className="flex items-center gap-1.5 group/price">
                                 <span className="font-semibold text-[var(--rouge)]">{p.price?.toLocaleString('fr-MA')} MAD</span>
-                                <button onClick={() => { setEditingPriceId(p.id); setEditingPriceValue(String(p.price ?? 0)) }}
+                                <button onClick={() => { setEditingPriceId(p.id); setEditingPriceValue(p.price ? String(p.price) : '') }}
                                   className="opacity-0 group-hover/price:opacity-100 transition-opacity p-1 rounded hover:bg-[var(--linen)] text-[var(--muted)] hover:text-[var(--rouge)]">
                                   <Pencil size={11} />
                                 </button>

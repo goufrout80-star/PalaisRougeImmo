@@ -502,7 +502,7 @@ export default function AdminDashboardPage() {
                             ) : (
                               <div className="flex items-center gap-1.5 group/price">
                                 <span className="font-semibold text-[var(--rouge)]">{formatCurrency(prop.price)}</span>
-                                <button onClick={() => { setEditingPriceId(prop.id); setEditingPriceValue(String(prop.price ?? 0)); }} className="opacity-0 group-hover/price:opacity-100 transition-opacity p-1 rounded hover:bg-[var(--parchment)] text-[var(--stone)] hover:text-[var(--rouge)]"><Pencil className="w-3 h-3" /></button>
+                                <button onClick={() => { setEditingPriceId(prop.id); setEditingPriceValue(prop.price ? String(prop.price) : ''); }} className="opacity-0 group-hover/price:opacity-100 transition-opacity p-1 rounded hover:bg-[var(--parchment)] text-[var(--stone)] hover:text-[var(--rouge)]"><Pencil className="w-3 h-3" /></button>
                               </div>
                             )}
                           </td>

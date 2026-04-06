@@ -25,15 +25,15 @@ export default function NewPropertyPage() {
   const [form, setForm] = useState({
     title: '',
     description: '',
-    price: 0,
+    price: '' as string | number,
     listingType: 'BUY' as ListingType,
     propertyType: 'APARTMENT' as PropertyType,
     status: 'AVAILABLE' as PropertyStatus,
     address: '',
-    bedrooms: 2,
-    bathrooms: 1,
-    surfaceArea: 100,
-    yearBuilt: 2023,
+    bedrooms: '' as string | number,
+    bathrooms: '' as string | number,
+    surfaceArea: '' as string | number,
+    yearBuilt: '' as string | number,
     latitude: '' as string,
     longitude: '' as string,
     hasPool: false,
@@ -58,6 +58,11 @@ export default function NewPropertyPage() {
     e.preventDefault();
     addProperty({
       ...form,
+      price: Number(form.price) || 0,
+      bedrooms: Number(form.bedrooms) || 0,
+      bathrooms: Number(form.bathrooms) || 0,
+      surfaceArea: Number(form.surfaceArea) || 0,
+      yearBuilt: form.yearBuilt !== '' ? Number(form.yearBuilt) : undefined,
       latitude: form.latitude !== '' ? Number(form.latitude) : undefined,
       longitude: form.longitude !== '' ? Number(form.longitude) : undefined,
       city: cityName || 'Marrakech',
@@ -146,9 +151,10 @@ export default function NewPropertyPage() {
               <input
                 type="number"
                 value={form.price}
-                onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+                onChange={(e) => setForm({ ...form, price: e.target.value === '' ? '' : Number(e.target.value) })}
                 className="input-luxury"
-                required
+                placeholder="Ex: 2500000"
+                min="0"
               />
             </div>
             <div>
@@ -158,8 +164,10 @@ export default function NewPropertyPage() {
               <input
                 type="number"
                 value={form.surfaceArea}
-                onChange={(e) => setForm({ ...form, surfaceArea: Number(e.target.value) })}
+                onChange={(e) => setForm({ ...form, surfaceArea: e.target.value === '' ? '' : Number(e.target.value) })}
                 className="input-luxury"
+                placeholder="Ex: 120"
+                min="0"
               />
             </div>
             <div>
@@ -169,8 +177,10 @@ export default function NewPropertyPage() {
               <input
                 type="number"
                 value={form.bedrooms}
-                onChange={(e) => setForm({ ...form, bedrooms: Number(e.target.value) })}
+                onChange={(e) => setForm({ ...form, bedrooms: e.target.value === '' ? '' : Number(e.target.value) })}
                 className="input-luxury"
+                placeholder="Ex: 3"
+                min="0"
               />
             </div>
             <div>
@@ -180,8 +190,10 @@ export default function NewPropertyPage() {
               <input
                 type="number"
                 value={form.bathrooms}
-                onChange={(e) => setForm({ ...form, bathrooms: Number(e.target.value) })}
+                onChange={(e) => setForm({ ...form, bathrooms: e.target.value === '' ? '' : Number(e.target.value) })}
                 className="input-luxury"
+                placeholder="Ex: 2"
+                min="0"
               />
             </div>
             <div>
@@ -191,8 +203,10 @@ export default function NewPropertyPage() {
               <input
                 type="number"
                 value={form.yearBuilt}
-                onChange={(e) => setForm({ ...form, yearBuilt: Number(e.target.value) })}
+                onChange={(e) => setForm({ ...form, yearBuilt: e.target.value === '' ? '' : Number(e.target.value) })}
                 className="input-luxury"
+                placeholder="Ex: 2024"
+                min="1900"
               />
             </div>
             <div className="col-span-2">

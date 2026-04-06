@@ -125,15 +125,24 @@ export function PropertiesProvider({ children }: { children: React.ReactNode }) 
     fetchProperties();
   }, [supabase]);
 
+  const refreshProperties = useCallback(async () => {
+    const { data } = await supabase
+      .from('properties')
+      .select('*')
+      .order('created_at', { ascending: false });
+    setProperties((data ?? []).map(fromRow));
+  }, [supabase]);
+
   const addProperty = useCallback(async (property: Omit<Property, 'id' | 'createdAt' | 'viewCount'>) => {
     const { data, error } = await supabase
       .from('properties')
       .insert(toRow(property))
       .select()
       .single();
-    if (error) { console.error('[PropertiesContext] addProperty:', error); return; }
-    setProperties(prev => [fromRow(data), ...prev]);
-  }, [supabase]);
+    if (error) { console.error('[PropertiesContext] addProperty:', error); return null; }
+    await refreshProperties();
+    return fromRow(data);
+  }, [supabase, refreshProperties]);
 
   const updateProperty = useCallback(async (id: string, updates: Partial<Property>) => {
     const current = properties.find(p => p.id === id);
@@ -144,8 +153,8 @@ export function PropertiesProvider({ children }: { children: React.ReactNode }) 
       .update({ ...toRow(merged), updated_at: new Date().toISOString() })
       .eq('id', id);
     if (error) { console.error('[PropertiesContext] updateProperty:', error); return; }
-    setProperties(prev => prev.map(p => (p.id === id ? { ...p, ...updates } : p)));
-  }, [supabase, properties]);
+    await refreshProperties();
+  }, [supabase, properties, refreshProperties]);
 
   const deleteProperty = useCallback(async (id: string) => {
     const { error } = await supabase.from('properties').delete().eq('id', id);

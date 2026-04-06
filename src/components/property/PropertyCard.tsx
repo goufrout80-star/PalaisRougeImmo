@@ -35,13 +35,20 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
         <div className="card-elegant overflow-hidden">
           {/* Image */}
           <div className="relative h-56 overflow-hidden">
-            <Image
-              src={property.images[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800'}
-              alt={property.title}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
+            {property.images?.[0] ? (
+              <Image
+                src={property.images[0]}
+                alt={property.title}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            ) : (
+              <div className="w-full h-56 bg-[var(--linen)] flex flex-col items-center justify-center gap-2">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-[var(--muted)] opacity-30"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span className="text-xs text-[var(--muted)] opacity-50 font-medium">Palais Rouge Immo</span>
+              </div>
+            )}
             {/* Badges */}
             <div className="absolute top-3 left-3 flex gap-2">
               <span className={`px-2.5 py-1 text-xs font-semibold rounded-md ${
