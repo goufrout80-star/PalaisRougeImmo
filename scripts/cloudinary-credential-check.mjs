@@ -2,6 +2,14 @@
 const name = process.env.CLOUDINARY_CLOUD_NAME ?? process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 const key = process.env.CLOUDINARY_API_KEY;
 const secret = process.env.CLOUDINARY_API_SECRET;
+console.log('[Cloudinary credentials] FORMAT='+JSON.stringify({
+  cloudNameFormat: /^[a-z0-9_-]+$/i.test(name??''),
+  keyNumeric: /^\\d{12,20}$/.test(key??''),
+  secretAlphanumeric: /^[a-zA-Z0-9_-]+$/.test(secret??''),
+  keyTrimmed: key === key?.trim(),
+  secretTrimmed: secret === secret?.trim(),
+  looksLikeUrl: /cloudinary:|http|<|>|api_key|api_secret/i.test(key??'') || /cloudinary:|http|<|>|api_key|api_secret/i.test(secret??''),
+}));
 if(!name || !key || !secret) {
  console.log('[Cloudinary credentials] NOT_CONFIGURED');
 } else {
