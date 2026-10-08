@@ -4,7 +4,9 @@ const key = process.env.CLOUDINARY_API_KEY;
 const secret = process.env.CLOUDINARY_API_SECRET;
 console.log('[Cloudinary credentials] FORMAT='+JSON.stringify({
   cloudNameFormat: /^[a-z0-9_-]+$/i.test(name??''),
-  keyNumeric: /^\\d{12,20}$/.test(key??''),
+  keyNumeric: /^[0-9]{12,20}$/.test(key??''),
+  keyLength: key?.length??0,
+  keyContainsWhitespace: /\\s/.test(key??''),
   secretAlphanumeric: /^[a-zA-Z0-9_-]+$/.test(secret??''),
   keyTrimmed: key === key?.trim(),
   secretTrimmed: secret === secret?.trim(),
