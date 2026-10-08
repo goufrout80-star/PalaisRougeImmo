@@ -33,7 +33,7 @@ export default function LoginPage() {
     }
 
     const user = data.user;
-    const role = user?.user_metadata?.role ?? '';
+    const role = user?.app_metadata?.role ?? 'user';
     const mfaSkipped = user?.user_metadata?.mfa_skipped;
 
     logLogin(role, email);
@@ -76,7 +76,7 @@ export default function LoginPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="w-14 h-14 bg-[var(--rouge)] rounded-xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-white font-bold text-lg">PR</span>
+              <span className="text-white font-bold text-lg">KI</span>
             </div>
             <h1 className="font-display text-2xl font-bold text-[var(--rouge)] mb-1">{t('auth.login')}</h1>
             <p className="text-sm text-[var(--stone)]">{t('auth.loginSubtitle')}</p>

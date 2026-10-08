@@ -272,7 +272,9 @@
     "source": "Source",
     "buyer": "Buyer",
     "soldDate": "Sale Date",
-    "agent": "Agent"
+    "agent": "Agent",
+    "agents": "Agents",
+    "valuations": "Valuation Requests"
   },
   "footer": {
     "description": "Your trusted real estate partner in Marrakech. We support you in all your real estate projects.",

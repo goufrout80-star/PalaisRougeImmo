@@ -116,7 +116,7 @@ export default function TwoFASetupPage() {
         {/* Header */}
         <div className="bg-[var(--rouge)] px-8 py-6">
           <h1 className="text-white text-xl font-display font-bold">
-            PALAIS ROUGE IMMO
+            KAMAR IMMOB
           </h1>
           <p className="text-white/75 text-sm mt-1">
             Authentification à deux facteurs

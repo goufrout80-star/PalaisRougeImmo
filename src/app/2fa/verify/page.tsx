@@ -50,7 +50,7 @@ export default function TwoFAVerifyPage() {
     }
 
     const { data: { user } } = await supabase.auth.getUser()
-    const role = user?.user_metadata?.role
+    const role = user?.app_metadata?.role
     if (role === 'admin') router.push('/admin/dashboard')
     else if (role === 'agent') router.push('/agent/dashboard')
     else router.push('/dashboard')
@@ -62,7 +62,7 @@ export default function TwoFAVerifyPage() {
 
         <div className="bg-[var(--rouge)] px-8 py-6">
           <h1 className="text-white text-xl font-display font-bold">
-            PALAIS ROUGE IMMO
+            KAMAR IMMOB
           </h1>
           <p className="text-white/75 text-sm mt-1">
             Vérification en deux étapes

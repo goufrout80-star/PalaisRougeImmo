@@ -272,7 +272,9 @@
     "source": "Source",
     "buyer": "Acheteur",
     "soldDate": "Date de vente",
-    "agent": "Agent"
+    "agent": "Agent",
+    "agents": "Agents",
+    "valuations": "Demandes d'estimation"
   },
   "footer": {
     "description": "Votre partenaire immobilier de confiance à Marrakech. Nous vous accompagnons dans tous vos projets immobiliers.",
