@@ -495,7 +495,7 @@ export default function AdminDashboardPage() {
           {/* Logo */}
           <div className="p-5 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
-              <Image src="/logo.svg" alt="Kamar Immob" width={36} height={36} />
+              <Image src="/logo-kamarimmob.svg" alt="Kamar Immob" width={36} height={36} />
               <div>
                 <div className="font-display text-sm font-bold text-[var(--rouge)] leading-tight">Kamar Immob</div>
                 <div className="text-[9px] text-[var(--gold-light)] font-semibold tracking-[0.2em] uppercase">Marrakech</div>

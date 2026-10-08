@@ -42,7 +42,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/logo.svg" alt="Kamar Immob" width={36} height={36} />
+              <Image src="/logo-kamarimmob.svg" alt="Kamar Immob" width={36} height={36} />
               <div>
                 <div className="font-display text-lg font-bold leading-tight">Kamar Immob</div>
                 <div className="text-[10px] text-[var(--gold)] font-semibold tracking-[0.2em] uppercase">Marrakech</div>

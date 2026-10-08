@@ -112,8 +112,8 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [{ url: '/logo.svg', type: 'image/svg+xml' }],
-    shortcut: '/logo.svg',
+    icon: [{ url: '/favicon.svg?v=20261008', type: 'image/svg+xml' }],
+    shortcut: '/favicon.svg?v=20261008',
   },
   manifest: '/site.webmanifest',
   verification: {
