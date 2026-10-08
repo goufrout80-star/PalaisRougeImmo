@@ -1,13 +1,6 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/apiAuth'
-
-function adminSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
 
 const ALLOWED_TABLES = [
   'faq_items',
@@ -25,7 +18,7 @@ function isAllowedTable(t: string): t is AllowedTable {
 
 // POST — generic admin mutation: { action, table, data, id? }
 export async function POST(req: NextRequest) {
-  const auth = await requireAuth(req, ['admin', 'agent'])
+  const auth = await requireAuth(req, ['admin'])
   if (auth.error) return auth.error
 
   const { action, table, data, id } = await req.json()
@@ -34,7 +27,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid action or table' }, { status: 400 })
   }
 
-  const sb = adminSupabase()
+  // Preserve RLS and the signed-in admin's MFA assurance level.
+  const sb = await createClient()
 
   try {
     if (action === 'insert') {

@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   description:
     "Réponses à toutes vos questions sur l'achat, la vente et " +
     "l'investissement immobilier à Marrakech et au Maroc. " +
-    "Guides pratiques par les experts de Palais Rouge Immo.",
-  alternates: { canonical: 'https://palaisrouge.online/faq' },
+    "Guides pratiques par les experts de Kamar Immob.",
+  alternates: { canonical: 'https://kamarimmob.com/faq' },
   openGraph: {
-    title: "FAQ Immobilier Marrakech | Palais Rouge Immo",
+    title: "FAQ Immobilier Marrakech | Kamar Immob",
     description: "Questions fréquentes sur l'immobilier à Marrakech.",
-    url: 'https://palaisrouge.online/faq',
+    url: 'https://kamarimmob.com/faq',
     images: [{ url: '/og-home.svg', width: 1200, height: 630 }],
   },
 };

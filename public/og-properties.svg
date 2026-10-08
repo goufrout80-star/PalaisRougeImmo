@@ -12,8 +12,8 @@
   <circle cx="1100" cy="500" r="300" fill="rgba(184,150,46,0.05)"/>
   <rect x="80" y="80" width="220" height="44" rx="22" fill="#B8962E"/>
   <text x="110" y="109" font-family="Georgia,serif" font-size="18" font-weight="bold" fill="white">Nos Propriétés</text>
-  <text x="80" y="260" font-family="Georgia,serif" font-size="72" font-weight="bold" fill="white">PALAIS ROUGE</text>
-  <text x="80" y="345" font-family="Georgia,serif" font-size="72" font-weight="bold" fill="#B8962E">IMMO</text>
+  <text x="80" y="260" font-family="Georgia,serif" font-size="72" font-weight="bold" fill="white">KAMAR</text>
+  <text x="80" y="345" font-family="Georgia,serif" font-size="72" font-weight="bold" fill="#B8962E">IMMOB</text>
   <text x="80" y="420" font-family="Arial,sans-serif" font-size="28" fill="rgba(255,255,255,0.80)">Villas · Riads · Appartements de Prestige</text>
-  <text x="80" y="550" font-family="Arial,sans-serif" font-size="22" fill="rgba(255,255,255,0.45)">palaisrouge.online</text>
+  <text x="80" y="550" font-family="Arial,sans-serif" font-size="22" fill="rgba(255,255,255,0.45)">kamarimmob.com</text>
 </svg>

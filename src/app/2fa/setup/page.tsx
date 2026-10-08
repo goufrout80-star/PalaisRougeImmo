@@ -22,7 +22,7 @@ export default function TwoFASetupPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
-      const role = user.user_metadata?.role ?? ''
+      const role = user.app_metadata?.role ?? ''
       setUserRole(role)
 
       // Check if already enrolled

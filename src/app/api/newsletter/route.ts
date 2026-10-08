@@ -13,11 +13,18 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = await createClient();
-    await supabase
-      .from('newsletter')
-      .upsert({ email, subscribed_at: new Date().toISOString() }, { onConflict: 'email' });
+    // Public RLS allows INSERT, not UPSERT (which requires UPDATE).
+    const { error } = await supabase.from('newsletter').insert({ email });
+    if (error && error.code !== '23505') {
+      console.error('[Newsletter] Database insert failed:', error);
+      return NextResponse.json({ error: 'Unable to subscribe' }, { status: 500 });
+    }
 
-    await sendNewsletterWelcome(email);
+    // Welcome email is optional and must not prevent a successful subscription.
+    if (!error) {
+      try { await sendNewsletterWelcome(email); }
+      catch (mailError) { console.warn('[Newsletter] Welcome email failed:', mailError); }
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {

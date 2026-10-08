@@ -5,10 +5,12 @@ import { sendContactNotification } from '@/lib/email'
 import { sanitizeString, sanitizeEmail, sanitizePhone, sanitizeUUID } from '@/lib/sanitize'
 
 export async function POST(req: NextRequest) {
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+  // Service-role features (internal logging and agent lookup) are optional.
+  // Public contact forms must keep working before private credentials are configured.
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const supabaseAdmin = serviceKey
+    ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey)
+    : null
   try {
     const body = await req.json()
     const name = sanitizeString(body.name, 100)
@@ -50,7 +52,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Log activity (fire-and-forget, never block)
-    void (async () => {
+    if (supabaseAdmin) void (async () => {
       try {
         await supabaseAdmin.from('activity_logs').insert({
           event_type: 'contact_submitted',
@@ -71,14 +73,14 @@ export async function POST(req: NextRequest) {
       } catch { /* silent */ }
     })()
 
-    const origin = req.headers.get('origin') ?? 'https://palaisrouge.online'
+    const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://kamarimmob.com'
     const propertyUrl = propertyId
       ? `${origin}/properties/${propertyId}`
       : undefined
 
     // Look up agent email if a property was specified
     let agentEmail: string | undefined
-    if (propertyId) {
+    if (propertyId && supabaseAdmin) {
       const { data: prop } = await supabaseAdmin
         .from('properties')
         .select('agent_id')

@@ -15,7 +15,7 @@ export async function generateMetadata(
 
   if (!property) {
     return {
-      title: 'Propriété | Palais Rouge Immo',
+      title: 'Propriété | Kamar Immob',
       robots: { index: false },
     };
   }
@@ -34,9 +34,9 @@ export async function generateMetadata(
     (property.area_sqm ? `${property.area_sqm} m². ` : '') +
     (property.description_fr
       ? property.description_fr.slice(0, 120) + '...'
-      : "Palais Rouge Immo — agence immobilière de luxe à Marrakech.");
-  const image = (property.images as string[] | null)?.[0] ?? 'https://palaisrouge.online/og-default.svg';
-  const url = `https://palaisrouge.online/properties/${id}`;
+      : "Kamar Immob — agence immobilière de luxe à Marrakech.");
+  const image = (property.images as string[] | null)?.[0] ?? 'https://kamarimmob.com/og-default.svg';
+  const url = `https://kamarimmob.com/properties/${id}`;
   const shouldIndex = property.status === 'available' && property.is_published;
 
   return {
@@ -49,7 +49,7 @@ export async function generateMetadata(
       description,
       url,
       type: 'website',
-      siteName: 'Palais Rouge Immo',
+      siteName: 'Kamar Immob',
       images: [{ url: image, width: 1200, height: 630, alt: title }],
     },
     twitter: {

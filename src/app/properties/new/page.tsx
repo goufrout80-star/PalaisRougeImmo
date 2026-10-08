@@ -17,6 +17,8 @@ export default function NewPropertyPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { addProperty } = useProperties();
   const router = useRouter();
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const [cityId, setCityId] = useState('');
   const [cityName, setCityName] = useState('');
@@ -56,7 +58,10 @@ export default function NewPropertyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await addProperty({
+    if (saving) return;
+    setSaving(true);
+    setSaveError('');
+    const created = await addProperty({
       ...form,
       price: Number(form.price) || 0,
       bedrooms: Number(form.bedrooms) || 0,
@@ -70,6 +75,11 @@ export default function NewPropertyPage() {
       agentId: user?.id || '',
       agentName: user?.name || '',
     });
+    if (!created) {
+      setSaveError("Impossible d'enregistrer la propriété. Vérifiez les champs et réessayez.");
+      setSaving(false);
+      return;
+    }
     router.push(user?.role === 'admin' ? '/admin/dashboard' : '/agent/dashboard');
   };
 
@@ -292,11 +302,12 @@ export default function NewPropertyPage() {
               </div>
             </div>
           </div>
+          {saveError && <p role="alert" className="text-sm text-red-600">{saveError}</p>}
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="ghost" onClick={() => router.back()}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit">{t('common.save')}</Button>
+            <Button type="submit" disabled={saving}>{saving ? 'Enregistrement...' : t('common.save')}</Button>
           </div>
         </form>
       </div>

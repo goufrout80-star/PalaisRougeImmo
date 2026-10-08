@@ -207,7 +207,8 @@ export default function AgentDashboardPage() {
   }
 
   const handleMarkLeadRead = async (id: string) => {
-    await fetch('/api/admin/mutations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', table: 'contact_submissions', data: { is_read: true }, id }) })
+    const { error } = await supabase.from('contact_submissions').update({ is_read: true }).eq('id', id)
+    if (error) { console.error('[Agent] Unable to mark lead read:', error); return }
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, is_read: true } : l)))
   }
 
@@ -232,9 +233,9 @@ export default function AgentDashboardPage() {
         {/* Logo */}
         <div className="p-5 border-b border-[var(--border)]">
           <div className="flex items-center gap-2">
-            <Image src="/logo.svg" alt="Palais Rouge Immo" width={36} height={36} />
+            <Image src="/logo.svg" alt="Kamar Immob" width={36} height={36} />
             <div>
-              <div className="font-display text-sm font-bold text-[var(--rouge)] leading-tight">Palais Rouge Immo</div>
+              <div className="font-display text-sm font-bold text-[var(--rouge)] leading-tight">Kamar Immob</div>
               <div className="text-[9px] text-[var(--gold-light)] font-semibold tracking-[0.2em] uppercase">Marrakech</div>
             </div>
           </div>

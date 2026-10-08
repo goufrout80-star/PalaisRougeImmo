@@ -18,6 +18,8 @@ export default function EditPropertyPage() {
   const { getProperty, updateProperty } = useProperties();
   const params = useParams();
   const router = useRouter();
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const property = getProperty(params.id as string);
   const [form, setForm] = useState(property || ({} as Record<string, unknown>));
@@ -55,12 +57,20 @@ export default function EditPropertyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateProperty(property.id, {
+    if (saving) return;
+    setSaving(true);
+    setSaveError('');
+    const saved = await updateProperty(property.id, {
       ...(form as Record<string, unknown>),
       images,
       city: cityName || (form as Record<string, string>).city || '',
       neighborhood,
     });
+    if (!saved) {
+      setSaveError("Impossible de modifier la propriété. Vérifiez les champs et réessayez.");
+      setSaving(false);
+      return;
+    }
     router.push(`/properties/${property.id}`);
   };
 
@@ -295,11 +305,12 @@ export default function EditPropertyPage() {
               </div>
             </div>
           </div>
+          {saveError && <p role="alert" className="text-sm text-red-600">{saveError}</p>}
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="ghost" onClick={() => router.back()}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit">{t('common.save')}</Button>
+            <Button type="submit" disabled={saving}>{saving ? 'Enregistrement...' : t('common.save')}</Button>
           </div>
         </form>
       </div>

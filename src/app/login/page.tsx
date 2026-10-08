@@ -100,7 +100,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="input-luxury pl-10"
-                  placeholder="admin@palaisrouge.online"
+                  placeholder="dev@kamarimmob.com"
                   required
                 />
               </div>

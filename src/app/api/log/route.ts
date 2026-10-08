@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       if (user) {
         userId = user.id
         userEmail = user.email ?? null
-        userRole = user.user_metadata?.role ?? 'visitor'
+        userRole = user.app_metadata?.role ?? 'visitor'
       }
     } catch {
       // Visitor — no auth session
