@@ -47,7 +47,7 @@ export default function ContactPage() {
   const contactInfo = [
     { icon: MapPin, label: t('contact.address'), value: settings.agency_address || 'Bd Abdelkrim Al Khattabi, Marrakech 40000, Morocco' },
     { icon: Phone, label: t('contact.phone'), value: settings.agency_phone || '+212 524 43 00 00' },
-    { icon: Mail, label: t('contact.email'), value: settings.agency_email || 'contact@palaisrouge.online' },
+    { icon: Mail, label: t('contact.email'), value: settings.agency_email || 'dev@kamarimmob.com' },
     { icon: Clock, label: t('contact.officeHours'), value: t('contact.officeHoursValue') },
   ];
 

@@ -30,7 +30,7 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://palaisrouge.online/sitemap.xml',
-    host: 'https://palaisrouge.online',
+    sitemap: 'https://kamarimmob.com/sitemap.xml',
+    host: 'https://kamarimmob.com',
   }
 }

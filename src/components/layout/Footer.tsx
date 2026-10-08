@@ -40,9 +40,9 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/logo.svg" alt="Palais Rouge Immo" width={36} height={36} />
+              <Image src="/logo.svg" alt="Kamar Immob" width={36} height={36} />
               <div>
-                <div className="font-display text-lg font-bold leading-tight">Palais Rouge Immo</div>
+                <div className="font-display text-lg font-bold leading-tight">Kamar Immob</div>
                 <div className="text-[10px] text-[var(--gold)] font-semibold tracking-[0.2em] uppercase">Marrakech</div>
               </div>
             </div>
@@ -51,11 +51,11 @@ export default function Footer() {
             </p>
             <div className="flex gap-3">
               {[
-                { icon: Instagram, href: settings.instagram || 'https://instagram.com/palaisrougeimmo' },
-                { icon: Linkedin, href: settings.linkedin || 'https://linkedin.com/company/palaisrougeimmo' },
-                { icon: Twitter, href: settings.twitter || 'https://twitter.com/palaisrougeimmo' },
-                { icon: Facebook, href: settings.facebook || 'https://facebook.com/palaisrougeimmo' },
-              ].map((social, i) => (
+                { icon: Instagram, href: settings.instagram || '' },
+                { icon: Linkedin, href: settings.linkedin || '' },
+                { icon: Twitter, href: settings.twitter || '' },
+                { icon: Facebook, href: settings.facebook || '' },
+              ].filter((social) => Boolean(social.href)).map((social, i) => (
                 <a
                   key={i}
                   href={social.href}
@@ -164,15 +164,17 @@ export default function Footer() {
           <div className="flex flex-wrap items-center gap-6 text-xs text-gray-400">
             <span className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-[var(--gold)]" />
-              {settings.agency_address || 'Bd Abdelkrim Al Khattabi, Marrakech 40000'}
+              {settings.agency_address || 'Marrakech, Maroc'}
             </span>
-            <span className="flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-[var(--gold)]" />
-              {settings.agency_phone || '+212 524 43 00 00'}
-            </span>
+            {settings.agency_phone && (
+              <span className="flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5 text-[var(--gold)]" />
+                {settings.agency_phone}
+              </span>
+            )}
             <span className="flex items-center gap-1.5">
               <Mail className="w-3.5 h-3.5 text-[var(--gold)]" />
-              {settings.agency_email || 'contact@palaisrouge.online'}
+              {settings.agency_email || 'dev@kamarimmob.com'}
             </span>
           </div>
         </div>

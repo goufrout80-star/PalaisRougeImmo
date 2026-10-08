@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   description:
     "Rencontrez nos agents immobiliers experts à Marrakech. " +
     "Spécialistes villas, riads et appartements de prestige. " +
-    "Profitez d'un accompagnement personnalisé avec Palais Rouge Immo.",
-  alternates: { canonical: 'https://palaisrouge.online/agents' },
+    "Profitez d'un accompagnement personnalisé avec Kamar Immob.",
+  alternates: { canonical: 'https://kamarimmob.com/agents' },
   openGraph: {
-    title: "Notre Équipe d'Agents Immobiliers Marrakech | Palais Rouge Immo",
+    title: "Notre Équipe d'Agents Immobiliers Marrakech | Kamar Immob",
     description: "Agents immobiliers experts spécialisés luxe à Marrakech.",
-    url: 'https://palaisrouge.online/agents',
+    url: 'https://kamarimmob.com/agents',
     images: [{ url: '/og-home.svg', width: 1200, height: 630 }],
   },
 };

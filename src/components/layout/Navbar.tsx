@@ -136,10 +136,10 @@ export default function Navbar() {
             {/* Center Logo */}
             <Link href="/" className="flex flex-col items-center">
               <div className="flex items-center gap-2">
-                <Image src="/logo.svg" alt="Palais Rouge Immo" width={36} height={36} priority />
+                <Image src="/logo.svg" alt="Kamar Immob" width={36} height={36} priority />
                 <div>
                   <div className="font-display text-lg font-bold text-[var(--rouge)] leading-tight">
-                    Palais Rouge Immo
+                    Kamar Immob
                   </div>
                   <div className="text-[10px] text-[var(--gold)] font-semibold tracking-[0.2em] uppercase">
                     Marrakech
