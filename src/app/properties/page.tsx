@@ -18,9 +18,13 @@ function PropertiesContent() {
 
   const initialListingType = searchParams.get('listingType') as ListingType | null;
   const initialPropertyType = searchParams.get('propertyType') as PropertyType | null;
+  const initialQuery = searchParams.get('q') ?? '';
+  const initialFeatured = searchParams.get('featured') === 'true';
 
   const [listingType, setListingType] = useState<ListingType | ''>(initialListingType || '');
   const [propertyType, setPropertyType] = useState<PropertyType | ''>(initialPropertyType || '');
+  const [query, setQuery] = useState(initialQuery);
+  const [featuredOnly, setFeaturedOnly] = useState(initialFeatured);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [bedrooms, setBedrooms] = useState('');
@@ -30,6 +34,14 @@ function PropertiesContent() {
   const filtered = useMemo(() => {
     let result = properties.filter(p => p.approved);
 
+    if (featuredOnly) result = result.filter(p => p.featured);
+    if (query.trim()) {
+      const term = query.trim().toLocaleLowerCase('fr');
+      result = result.filter(p =>
+        [p.title,p.description,p.address,p.neighborhood,p.city,p.propertyType]
+          .some(value => String(value ?? '').toLocaleLowerCase('fr').includes(term))
+      );
+    }
     if (listingType) result = result.filter(p => p.listingType === listingType);
     if (propertyType) result = result.filter(p => p.propertyType === propertyType);
     if (minPrice) result = result.filter(p => p.price >= Number(minPrice));
@@ -44,9 +56,11 @@ function PropertiesContent() {
     }
 
     return result;
-  }, [properties, listingType, propertyType, minPrice, maxPrice, bedrooms, sortBy]);
+  }, [properties, listingType, propertyType, minPrice, maxPrice, bedrooms, sortBy, query, featuredOnly]);
 
   const resetFilters = () => {
+    setQuery('');
+    setFeaturedOnly(false);
     setListingType('');
     setPropertyType('');
     setMinPrice('');
@@ -74,6 +88,14 @@ function PropertiesContent() {
         {/* Filter Bar */}
         <div className="bg-white rounded-xl border border-[var(--border)] p-4 mb-8">
           <div className="flex flex-wrap items-center gap-3">
+            <input type="search" value={query} onChange={e=>setQuery(e.target.value)}
+              aria-label="Rechercher une propriété ou un quartier"
+              placeholder="Rechercher un bien ou quartier"
+              className="min-w-[180px] flex-1 px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-white" />
+            <label className="flex items-center gap-2 text-xs font-medium text-[var(--noir)]">
+              <input type="checkbox" checked={featuredOnly} onChange={e=>setFeaturedOnly(e.target.checked)} />
+              Exclusivités
+            </label>
             {/* Listing Type */}
             <div className="flex gap-1 bg-[var(--parchment)] rounded-lg p-1">
               <button
@@ -131,7 +153,7 @@ function PropertiesContent() {
               <option value="area">{t('search.areaLargest')}</option>
             </select>
 
-            {(listingType || propertyType || minPrice || maxPrice || bedrooms) && (
+            {(listingType || propertyType || minPrice || maxPrice || bedrooms || query || featuredOnly) && (
               <button
                 onClick={resetFilters}
                 className="flex items-center gap-1 px-3 py-2 text-xs text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"

@@ -389,10 +389,10 @@ export default function PropertyDetailClient() {
                   <Phone className="w-4 h-4 text-[var(--gold)]" />
                   <span className="text-sm text-[var(--rouge)]">{agentProfile?.phone || agencyPhone}</span>
                 </a>}
-                <a href="mailto:contact@kamarimmob.com" className="flex items-center gap-3 p-3 bg-[var(--parchment)] rounded-lg hover:bg-[var(--border)] transition-colors">
+                {agencyEmail && <a href={`mailto:${agencyEmail}`} className="flex items-center gap-3 p-3 bg-[var(--parchment)] rounded-lg hover:bg-[var(--border)] transition-colors">
                   <Mail className="w-4 h-4 text-[var(--gold)]" />
-                  <span className="text-sm text-[var(--rouge)]">contact@kamarimmob.com</span>
-                </a>
+                  <span className="text-sm text-[var(--rouge)]">{agencyEmail}</span>
+                </a>}
               </div>
 
               <div className="space-y-3">

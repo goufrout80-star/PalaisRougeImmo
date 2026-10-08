@@ -305,6 +305,7 @@ export default function AdminDashboardPage() {
     const dbFields: Record<string, unknown> = {
       title_fr: post.title,
       excerpt_fr: post.excerpt,
+      author: post.author || null,
       content_fr: post.content ?? '',
       cover_image: post.coverImage || null,
       is_published: Boolean(post.isPublished),
@@ -571,6 +572,12 @@ export default function AdminDashboardPage() {
 
         {/* Content */}
         <div className="p-4 md:p-6">
+          {mutationNotice && (
+            <div role="status" className="mb-4 flex items-start justify-between gap-3 rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-sm">
+              <span>{mutationNotice}</span>
+              <button type="button" aria-label="Fermer le message" onClick={() => setMutationNotice('')}>×</button>
+            </div>
+          )}
           {/* Dashboard Overview */}
           {activeSection === 'dashboard' && (
             <div>
@@ -723,8 +730,6 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           )}
-
-          {mutationNotice && <div role="status" className="mb-4 rounded-lg border border-[var(--border)] bg-white p-3 text-sm">{mutationNotice}</div>}
 
           {/* Blog Posts */}
           {activeSection === 'blog' && (
