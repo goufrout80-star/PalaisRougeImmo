@@ -24,9 +24,9 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   const path = request.nextUrl.pathname
-  const isAdminRoute    = path.startsWith('/admin')
-  const isAgentRoute    = path.startsWith('/agent')
-  const isDashboardRoute = path.startsWith('/dashboard')
+  const isAdminRoute    = path === '/admin' || path.startsWith('/admin/')
+  const isAgentRoute    = path === '/agent' || path.startsWith('/agent/')
+  const isDashboardRoute = path === '/dashboard' || path.startsWith('/dashboard/')
   const isLoginPage     = path === '/login'
 
   // Not logged in — redirect to login
@@ -39,8 +39,16 @@ export async function updateSession(request: NextRequest) {
   if (user) {
     const role = user.app_metadata?.role ?? ''
 
-    // Admin and agent access is still controlled by protected app_metadata roles.
-    // Temporary setup phase: password authentication is sufficient (no MFA redirect).
+    // Enforce UI route permissions as well as API/database permissions.
+    // /agents is a public directory, NOT the protected /agent dashboard.
+    if ((isAdminRoute && role !== 'admin') ||
+        (isAgentRoute && role !== 'agent' && role !== 'admin')) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+
+    // Mandatory MFA is temporarily disabled at the project owner's request.
 
     // Redirect logged-in user away from login page
     if (isLoginPage) {
