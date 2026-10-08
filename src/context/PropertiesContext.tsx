@@ -8,9 +8,9 @@ interface PropertiesContextType {
   properties: Property[];
   allProperties: Property[];
   isLoading: boolean;
-  addProperty: (property: Omit<Property, 'id' | 'createdAt' | 'viewCount'>) => void;
-  updateProperty: (id: string, updates: Partial<Property>) => void;
-  deleteProperty: (id: string) => void;
+  addProperty: (property: Omit<Property, 'id' | 'createdAt' | 'viewCount'>) => Promise<Property | null>;
+  updateProperty: (id: string, updates: Partial<Property>) => Promise<boolean>;
+  deleteProperty: (id: string) => Promise<boolean>;
   getProperty: (id: string) => Property | undefined;
   getPropertiesByAgent: (agentId: string) => Property[];
   getFeaturedProperties: () => Property[];
@@ -149,7 +149,7 @@ export function PropertiesProvider({ children }: { children: React.ReactNode }) 
 
   const updateProperty = useCallback(async (id: string, updates: Partial<Property>) => {
     const current = properties.find(p => p.id === id);
-    if (!current) return;
+    if (!current) return false;
     const merged = { ...current, ...updates };
     try {
       const res = await fetch('/api/properties', {
@@ -157,9 +157,10 @@ export function PropertiesProvider({ children }: { children: React.ReactNode }) 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, ...toRow(merged) }),
       });
-      if (!res.ok) { const e = await res.json(); console.error('[PropertiesContext] updateProperty:', e); return; }
+      if (!res.ok) { const e = await res.json(); console.error('[PropertiesContext] updateProperty:', e); return false; }
       await refreshProperties();
-    } catch (err) { console.error('[PropertiesContext] updateProperty:', err); }
+      return true;
+    } catch (err) { console.error('[PropertiesContext] updateProperty:', err); return false; }
   }, [properties, refreshProperties]);
 
   const deleteProperty = useCallback(async (id: string) => {
@@ -169,9 +170,10 @@ export function PropertiesProvider({ children }: { children: React.ReactNode }) 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id }),
       });
-      if (!res.ok) { const e = await res.json(); console.error('[PropertiesContext] deleteProperty:', e); return; }
+      if (!res.ok) { const e = await res.json(); console.error('[PropertiesContext] deleteProperty:', e); return false; }
       setProperties(prev => prev.filter(p => p.id !== id));
-    } catch (err) { console.error('[PropertiesContext] deleteProperty:', err); }
+      return true;
+    } catch (err) { console.error('[PropertiesContext] deleteProperty:', err); return false; }
   }, []);
 
   const getProperty = useCallback((id: string) => {
