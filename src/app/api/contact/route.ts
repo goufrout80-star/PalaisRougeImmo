@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
       } catch { /* silent */ }
     })()
 
-    const origin = req.headers.get('origin') ?? 'https://palaisrouge.online'
+    const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://kamarimmob.com'
     const propertyUrl = propertyId
       ? `${origin}/properties/${propertyId}`
       : undefined

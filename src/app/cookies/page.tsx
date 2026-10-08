@@ -25,7 +25,7 @@ export default function CookiesPage() {
             <p className="text-[var(--charcoal)] leading-relaxed">Vous pouvez contrôler et/ou supprimer les cookies comme vous le souhaitez via les paramètres de votre navigateur. Vous pouvez supprimer tous les cookies déjà présents sur votre ordinateur et configurer la plupart des navigateurs pour qu&apos;ils les bloquent.</p>
 
             <h2 className="font-display text-xl font-bold text-[var(--noir)] mt-6">Contact</h2>
-            <p className="text-[var(--charcoal)] leading-relaxed">Pour toute question concernant notre politique de cookies, contactez-nous à contact@palaisrouge.online.</p>
+            <p className="text-[var(--charcoal)] leading-relaxed">Pour toute question concernant notre politique de cookies, contactez-nous à dev@kamarimmob.com.</p>
 
             <p className="text-[var(--gold-light)] text-xs mt-8">Dernière mise à jour : Janvier 2025</p>
           </div>

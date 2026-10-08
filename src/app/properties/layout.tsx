@@ -5,13 +5,13 @@ export const metadata: Metadata = {
   description:
     "Parcourez + de 200 propriétés de luxe à vendre et à louer à Marrakech. " +
     "Villas Palmeraie, riads médina, appartements Guéliz, Hivernage. " +
-    "Palais Rouge Immo — votre agence immobilière de confiance.",
-  alternates: { canonical: 'https://palaisrouge.online/properties' },
+    "Kamar Immob — votre agence immobilière de confiance.",
+  alternates: { canonical: 'https://kamarimmob.com/properties' },
   openGraph: {
-    title: "Propriétés de Luxe à Marrakech | Palais Rouge Immo",
+    title: "Propriétés de Luxe à Marrakech | Kamar Immob",
     description:
       "Villas, riads, appartements de prestige à vendre et à louer à Marrakech.",
-    url: 'https://palaisrouge.online/properties',
+    url: 'https://kamarimmob.com/properties',
     images: [{ url: '/og-properties.svg', width: 1200, height: 630 }],
   },
 };

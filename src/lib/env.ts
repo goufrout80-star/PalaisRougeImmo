@@ -4,9 +4,9 @@
 export const env = {
   // App
   APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'Palais Rouge Immo',
-  COMPANY_EMAIL: process.env.NEXT_PUBLIC_COMPANY_EMAIL || 'contact@palaisrouge.online',
-  COMPANY_PHONE: process.env.NEXT_PUBLIC_COMPANY_PHONE || '+212524430000',
+  APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'Kamar Immob',
+  COMPANY_EMAIL: process.env.NEXT_PUBLIC_COMPANY_EMAIL || 'dev@kamarimmob.com',
+  COMPANY_PHONE: process.env.NEXT_PUBLIC_COMPANY_PHONE || '',
 
   // Supabase
   SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
@@ -15,8 +15,8 @@ export const env = {
 
   // Email (Resend)
   RESEND_API_KEY: process.env.RESEND_API_KEY || '',
-  EMAIL_FROM: process.env.EMAIL_FROM || 'noreply@palaisrouge.online',
-  EMAIL_TO: process.env.EMAIL_TO || 'contact@palaisrouge.online',
+  EMAIL_FROM: process.env.EMAIL_FROM || 'dev@kamarimmob.com',
+  EMAIL_TO: process.env.EMAIL_TO || 'dev@kamarimmob.com',
 
   // Cloudinary
   CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '',
