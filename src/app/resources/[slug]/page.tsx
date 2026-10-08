@@ -17,15 +17,15 @@ export async function generateMetadata(
     .single();
 
   if (!post || !post.is_published) {
-    return { title: 'Article | Palais Rouge Immo', robots: { index: false } };
+    return { title: 'Article | Kamar Immob', robots: { index: false } };
   }
 
   const title = post.title_fr ?? 'Article';
   const description = post.excerpt_fr
     ? post.excerpt_fr.slice(0, 160)
-    : "Conseils d'experts en immobilier de luxe à Marrakech. Palais Rouge Immo.";
-  const url = `https://palaisrouge.online/resources/${slug}`;
-  const image = post.cover_image ?? 'https://palaisrouge.online/og-blog.svg';
+    : "Conseils d'experts en immobilier de luxe à Marrakech. Kamar Immob.";
+  const url = `https://kamarimmob.com/resources/${slug}`;
+  const image = post.cover_image ?? 'https://kamarimmob.com/og-blog.svg';
 
   return {
     title,
@@ -36,7 +36,7 @@ export async function generateMetadata(
       description,
       url,
       type: 'article',
-      siteName: 'Palais Rouge Immo',
+      siteName: 'Kamar Immob',
       publishedTime: post.published_at ?? undefined,
       images: [{ url: image, width: 1200, height: 630, alt: title }],
     },
@@ -63,7 +63,7 @@ export default async function BlogPostPage(
 
   if (!post) notFound();
 
-  const url = `https://palaisrouge.online/resources/${slug}`;
+  const url = `https://kamarimmob.com/resources/${slug}`;
   const publishedDate = post.published_at
     ? new Date(post.published_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })
     : null;
@@ -71,8 +71,8 @@ export default async function BlogPostPage(
   return (
     <div className="pt-32 pb-20 bg-[var(--parchment)] min-h-screen">
       <BreadcrumbJsonLd items={[
-        { name: 'Accueil', url: 'https://palaisrouge.online' },
-        { name: 'Blog', url: 'https://palaisrouge.online/resources' },
+        { name: 'Accueil', url: 'https://kamarimmob.com' },
+        { name: 'Blog', url: 'https://kamarimmob.com/resources' },
         { name: post.title_fr ?? '', url },
       ]} />
       <BlogPostJsonLd post={{

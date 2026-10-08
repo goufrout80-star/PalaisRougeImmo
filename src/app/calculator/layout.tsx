@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   description:
     "Calculez vos mensualités et capacité d'emprunt pour votre " +
     "achat immobilier au Maroc. Outil gratuit et instantané. " +
-    "Simulez votre prêt immobilier avec Palais Rouge Immo, Marrakech.",
-  alternates: { canonical: 'https://palaisrouge.online/calculator' },
+    "Simulez votre prêt immobilier avec Kamar Immob, Marrakech.",
+  alternates: { canonical: 'https://kamarimmob.com/calculator' },
   openGraph: {
-    title: "Calculateur Prêt Immobilier Maroc | Palais Rouge Immo",
+    title: "Calculateur Prêt Immobilier Maroc | Kamar Immob",
     description: "Calculez vos mensualités pour votre achat immobilier au Maroc.",
-    url: 'https://palaisrouge.online/calculator',
+    url: 'https://kamarimmob.com/calculator',
     images: [{ url: '/og-home.svg', width: 1200, height: 630 }],
   },
 };

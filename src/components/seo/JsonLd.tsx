@@ -6,34 +6,26 @@ export function RealEstateAgentJsonLd() {
         __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': ['RealEstateAgent', 'LocalBusiness'],
-          '@id': 'https://palaisrouge.online/#organization',
-          name: 'Palais Rouge Immo',
-          alternateName: 'Palais Rouge Immobilier',
-          url: 'https://palaisrouge.online',
+          '@id': 'https://kamarimmob.com/#organization',
+          name: 'Kamar Immob',
+          url: 'https://kamarimmob.com',
           logo: {
             '@type': 'ImageObject',
-            url: 'https://palaisrouge.online/logo.png',
+            url: 'https://kamarimmob.com/logo.svg',
             width: 200,
             height: 60,
           },
-          image: 'https://palaisrouge.online/og-home.svg',
+          image: 'https://kamarimmob.com/og-home.svg',
           description:
-            "Agence immobilière de luxe N°1 à Marrakech. " +
+            "Agence immobilière de luxe à Marrakech. " +
             "Spécialisée dans la vente et location de villas, " +
             "riads et appartements de prestige.",
-          telephone: process.env.NEXT_PUBLIC_COMPANY_PHONE || '+212524430000',
-          email: 'contact@palaisrouge.online',
+          telephone: process.env.NEXT_PUBLIC_COMPANY_PHONE || undefined,
+          email: 'dev@kamarimmob.com',
           address: {
             '@type': 'PostalAddress',
-            streetAddress: 'Bd Abdelkrim Al Khattabi',
             addressLocality: 'Marrakech',
-            postalCode: '40000',
             addressCountry: 'MA',
-          },
-          geo: {
-            '@type': 'GeoCoordinates',
-            latitude: 31.6295,
-            longitude: -7.9811,
           },
           areaServed: {
             '@type': 'City',
@@ -41,18 +33,6 @@ export function RealEstateAgentJsonLd() {
             sameAs: 'https://www.wikidata.org/wiki/Q101174',
           },
           priceRange: 'MAD MAD MAD',
-          openingHoursSpecification: [
-            {
-              '@type': 'OpeningHoursSpecification',
-              dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-              opens: '09:00',
-              closes: '19:00',
-            },
-          ],
-          sameAs: [
-            'https://www.instagram.com/palaisrougeimmo',
-            'https://www.facebook.com/palaisrougeimmo',
-          ],
           hasMap: 'https://maps.google.com/?q=Marrakech',
           currenciesAccepted: 'MAD, EUR, USD',
           availableLanguage: [
@@ -90,8 +70,8 @@ export function PropertyJsonLd({ property, url }: { property: Record<string, unk
                 : 'https://schema.org/SoldOut',
             seller: {
               '@type': 'RealEstateAgent',
-              name: 'Palais Rouge Immo',
-              url: 'https://palaisrouge.online',
+              name: 'Kamar Immob',
+              url: 'https://kamarimmob.com',
             },
           },
           address: {
@@ -179,20 +159,20 @@ export function BlogPostJsonLd({ post }: { post: Record<string, unknown> }) {
           dateModified: (post.updated_at as string) ?? post.published_at,
           author: {
             '@type': 'Organization',
-            name: 'Palais Rouge Immo',
-            url: 'https://palaisrouge.online',
+            name: 'Kamar Immob',
+            url: 'https://kamarimmob.com',
           },
           publisher: {
             '@type': 'Organization',
-            name: 'Palais Rouge Immo',
+            name: 'Kamar Immob',
             logo: {
               '@type': 'ImageObject',
-              url: 'https://palaisrouge.online/logo.png',
+              url: 'https://kamarimmob.com/logo.svg',
             },
           },
           mainEntityOfPage: {
             '@type': 'WebPage',
-            '@id': `https://palaisrouge.online/resources/${post.slug}`,
+            '@id': `https://kamarimmob.com/resources/${post.slug}`,
           },
         }),
       }}

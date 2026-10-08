@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   description:
     "Guide complet pour louer une propriété à Marrakech : " +
     "démarches, prix, quartiers et conseils d'experts. " +
-    "Villas, riads, appartements — Palais Rouge Immo vous accompagne.",
-  alternates: { canonical: 'https://palaisrouge.online/guide/renting' },
+    "Villas, riads, appartements — Kamar Immob vous accompagne.",
+  alternates: { canonical: 'https://kamarimmob.com/guide/renting' },
   openGraph: {
-    title: "Guide Location Immobilier Marrakech | Palais Rouge Immo",
+    title: "Guide Location Immobilier Marrakech | Kamar Immob",
     description: "Tout savoir pour louer une propriété à Marrakech.",
-    url: 'https://palaisrouge.online/guide/renting',
+    url: 'https://kamarimmob.com/guide/renting',
     images: [{ url: '/og-home.svg', width: 1200, height: 630 }],
   },
 };

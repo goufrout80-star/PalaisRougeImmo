@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 
-const FROM  = process.env.RESEND_FROM_EMAIL ?? 'noreply@palaisrouge.online'
-const ADMIN = process.env.RESEND_ADMIN_EMAIL ?? 'admin@palaisrouge.online'
+const FROM  = process.env.RESEND_FROM_EMAIL ?? 'dev@kamarimmob.com'
+const ADMIN = process.env.RESEND_ADMIN_EMAIL ?? 'dev@kamarimmob.com'
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY)
@@ -57,7 +57,7 @@ export async function sendContactNotification(data: ContactSubmission) {
               <td style="background:#8B1A1A;padding:32px 40px;">
                 <p style="margin:0;color:#FFFFFF;font-size:22px;
                   font-weight:700;letter-spacing:1px;">
-                  PALAIS ROUGE IMMO
+                  KAMAR IMMOB
                 </p>
                 <p style="margin:8px 0 0;color:rgba(255,255,255,0.75);
                   font-size:13px;">
@@ -117,7 +117,7 @@ export async function sendContactNotification(data: ContactSubmission) {
               <td style="background:#F7F3EE;padding:20px 40px;
                 text-align:center;">
                 <p style="margin:0;color:#7A7570;font-size:12px;">
-                  Palais Rouge Immo · palaisrouge.online
+                  Kamar Immob · kamarimmob.com
                 </p>
               </td>
             </tr>
@@ -154,7 +154,7 @@ export async function sendNewsletterWelcome(email: string) {
         <table width="600" cellpadding="0" cellspacing="0"
           style="background:#FFFFFF;border-radius:8px;overflow:hidden;">
           <tr><td style="background:#8B1A1A;padding:32px 40px;">
-            <p style="margin:0;color:#FFFFFF;font-size:22px;font-weight:700;">PALAIS ROUGE IMMO</p>
+            <p style="margin:0;color:#FFFFFF;font-size:22px;font-weight:700;">KAMAR IMMOB</p>
           </td></tr>
           <tr><td style="padding:40px;">
             <p style="font-size:16px;color:#1A1A1A;">Merci de vous être inscrit à notre newsletter !</p>
@@ -163,7 +163,7 @@ export async function sendNewsletterWelcome(email: string) {
             </p>
           </td></tr>
           <tr><td style="background:#F7F3EE;padding:20px 40px;text-align:center;">
-            <p style="margin:0;color:#7A7570;font-size:12px;">Palais Rouge Immo · palaisrouge.online</p>
+            <p style="margin:0;color:#7A7570;font-size:12px;">Kamar Immob · kamarimmob.com</p>
           </td></tr>
         </table>
       </td></tr>
@@ -172,7 +172,7 @@ export async function sendNewsletterWelcome(email: string) {
   await getResend().emails.send({
     from: FROM,
     to: email,
-    subject: 'Bienvenue chez Palais Rouge Immo',
+    subject: 'Bienvenue chez Kamar Immob',
     html,
   })
 }

@@ -66,15 +66,15 @@ export default function AdminDashboardPage() {
   const [newsletterSubs, setNewsletterSubs] = useState<any[]>([]);
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
   const [contactInfo, setContactInfo] = useState<ContactInfo>({
-    email: 'contact@palaisrouge.online',
-    phone: '+212 524 43 00 00',
+    email: 'dev@kamarimmob.com',
+    phone: '',
     whatsapp: '',
-    address: 'Bd Abdelkrim Al Khattabi, Marrakech 40000, Morocco',
+    address: 'Marrakech, Maroc',
     mapsUrl: 'https://maps.google.com/?q=Marrakech+Morocco',
-    instagram: 'https://instagram.com/palaisrougeimmo',
-    facebook: 'https://facebook.com/palaisrougeimmo',
-    linkedin: 'https://linkedin.com/company/palaisrougeimmo',
-    twitter: 'https://twitter.com/palaisrougeimmo',
+    instagram: '',
+    facebook: '',
+    linkedin: '',
+    twitter: '',
   });
 
   // Modal state
@@ -205,7 +205,7 @@ export default function AdminDashboardPage() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_submissions' }, (payload) => {
         setFormEntries(prev => [payload.new as any, ...prev]);
         if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-          new Notification('Nouveau contact — Palais Rouge', { body: `${(payload.new as any).name} a envoye un message` });
+          new Notification('Nouveau contact — Kamar Immob', { body: `${(payload.new as any).name} a envoye un message` });
         }
       })
       .subscribe();
@@ -278,7 +278,7 @@ export default function AdminDashboardPage() {
         d.toLocaleDateString('fr-MA'), d.toLocaleTimeString('fr-MA'),
         l.event_type, l.event_category,
         `"${(l.event_label ?? '').replace(/"/g, "'")}"`,
-        `"${(l.page_url ?? '').replace('https://www.palaisrouge.online', '')}"`,
+        `"${(l.page_url ?? '').replace('https://www.kamarimmob.com', '')}"`,
         l.device_type ?? '', l.user_role ?? 'visitor', l.user_email ?? '', l.ip_address ?? '',
         l.is_error ? l.error_message ?? 'oui' : '',
       ].join(',');
@@ -457,9 +457,9 @@ export default function AdminDashboardPage() {
           {/* Logo */}
           <div className="p-5 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
-              <Image src="/logo.svg" alt="Palais Rouge Immo" width={36} height={36} />
+              <Image src="/logo.svg" alt="Kamar Immob" width={36} height={36} />
               <div>
-                <div className="font-display text-sm font-bold text-[var(--rouge)] leading-tight">Palais Rouge Immo</div>
+                <div className="font-display text-sm font-bold text-[var(--rouge)] leading-tight">Kamar Immob</div>
                 <div className="text-[9px] text-[var(--gold-light)] font-semibold tracking-[0.2em] uppercase">Marrakech</div>
               </div>
             </div>
@@ -822,7 +822,7 @@ export default function AdminDashboardPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           {entry.email && (
-                            <a href={`mailto:${entry.email}?subject=Re: Votre demande — Palais Rouge Immo`} className="flex items-center gap-1.5 text-xs bg-[var(--parchment)] text-[var(--rouge)] px-2 py-1 rounded-lg hover:bg-[var(--rouge)] hover:text-white transition-colors font-medium">
+                            <a href={`mailto:${entry.email}?subject=Re: Votre demande — Kamar Immob`} className="flex items-center gap-1.5 text-xs bg-[var(--parchment)] text-[var(--rouge)] px-2 py-1 rounded-lg hover:bg-[var(--rouge)] hover:text-white transition-colors font-medium">
                               <Mail className="w-3 h-3" /> Email
                             </a>
                           )}
@@ -832,7 +832,7 @@ export default function AdminDashboardPage() {
                             </a>
                           )}
                           {entry.whatsapp && (
-                            <a href={`https://wa.me/${entry.whatsapp.replace(/\D/g, '')}?text=Bonjour ${entry.name}, suite à votre demande sur Palais Rouge Immo...`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs bg-green-500 text-white px-2 py-1 rounded-lg hover:bg-green-600 transition-colors font-medium">
+                            <a href={`https://wa.me/${entry.whatsapp.replace(/\D/g, '')}?text=Bonjour ${entry.name}, suite à votre demande sur Kamar Immob...`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs bg-green-500 text-white px-2 py-1 rounded-lg hover:bg-green-600 transition-colors font-medium">
                               <MessageSquare className="w-3 h-3" /> WhatsApp
                             </a>
                           )}
@@ -961,7 +961,7 @@ export default function AdminDashboardPage() {
                             {v.phone && <div className="text-xs">{v.phone}</div>}
                             <div className="flex items-center gap-1.5 mt-1.5">
                               {v.email && (
-                                <a href={`mailto:${v.email}?subject=Re: Votre demande d'estimation — Palais Rouge Immo`} className="flex items-center gap-1 text-[10px] bg-[var(--parchment)] text-[var(--rouge)] px-1.5 py-0.5 rounded hover:bg-[var(--rouge)] hover:text-white transition-colors font-medium">
+                                <a href={`mailto:${v.email}?subject=Re: Votre demande d'estimation — Kamar Immob`} className="flex items-center gap-1 text-[10px] bg-[var(--parchment)] text-[var(--rouge)] px-1.5 py-0.5 rounded hover:bg-[var(--rouge)] hover:text-white transition-colors font-medium">
                                   <Mail className="w-2.5 h-2.5" /> Email
                                 </a>
                               )}
@@ -1161,7 +1161,7 @@ export default function AdminDashboardPage() {
                           {entry.is_error && entry.error_message && <p className="text-xs text-red-600 mt-1 font-mono bg-red-50 px-2 py-1 rounded">{entry.error_message}</p>}
                           <div className="flex items-center gap-3 mt-1">
                             <span className="text-xs text-[var(--muted)]">{new Date(entry.created_at).toLocaleTimeString('fr-MA', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
-                            {entry.page_url && <span className="text-xs text-[var(--muted)] truncate max-w-[200px]">{entry.page_url.replace('https://www.palaisrouge.online', '').replace('https://palaisrouge.online', '')}</span>}
+                            {entry.page_url && <span className="text-xs text-[var(--muted)] truncate max-w-[200px]">{entry.page_url.replace('https://www.kamarimmob.com', '').replace('https://kamarimmob.com', '')}</span>}
                             {entry.user_email && <span className="text-xs text-[var(--rouge)] font-medium">{entry.user_email}</span>}
                           </div>
                         </div>

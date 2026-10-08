@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   description:
     "Trouvez votre villa, riad ou appartement idéal à Marrakech. " +
     "Filtrez par prix, quartier, surface et type de bien. " +
-    "Recherche avancée — Palais Rouge Immo, agence immobilière de luxe.",
-  alternates: { canonical: 'https://palaisrouge.online/search' },
+    "Recherche avancée — Kamar Immob, agence immobilière de luxe.",
+  alternates: { canonical: 'https://kamarimmob.com/search' },
   openGraph: {
-    title: "Rechercher une Propriété à Marrakech | Palais Rouge Immo",
+    title: "Rechercher une Propriété à Marrakech | Kamar Immob",
     description: "Recherche avancée de propriétés de luxe à Marrakech.",
-    url: 'https://palaisrouge.online/search',
+    url: 'https://kamarimmob.com/search',
     images: [{ url: '/og-home.svg', width: 1200, height: 630 }],
   },
 };

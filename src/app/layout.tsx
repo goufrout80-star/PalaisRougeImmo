@@ -34,13 +34,13 @@ const notoArabic = Noto_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://palaisrouge.online'),
+  metadataBase: new URL('https://kamarimmob.com'),
   title: {
-    default: 'Palais Rouge Immo | Agence Immobilière Luxe Marrakech',
-    template: '%s | Palais Rouge Immo — Marrakech',
+    default: 'Kamar Immob | Agence Immobilière Luxe Marrakech',
+    template: '%s | Kamar Immob — Marrakech',
   },
   description:
-    "Palais Rouge Immo — N°1 de l'immobilier de luxe à Marrakech. " +
+    "Kamar Immob — spécialiste de l'immobilier de luxe à Marrakech. " +
     'Achat et vente de villas, riads, appartements prestige. ' +
     'Agence immobilière Marrakech. Buy luxury property Marrakech Morocco.',
   keywords: [
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     'location villa Marrakech', 'location riad Marrakech',
     'agence immobilière luxe Marrakech', 'bien immobilier Marrakech',
     'terrain à vendre Marrakech', 'résidence secondaire Marrakech',
-    'Palais Rouge Immo', 'palaisrouge.online',
+    'Kamar Immob', 'kamarimmob.com',
     'luxury real estate Marrakech', 'buy villa Marrakech',
     'sell villa Marrakech', 'riad for sale Marrakech',
     'property for sale Marrakech Morocco', 'Marrakech real estate agency',
@@ -64,47 +64,39 @@ export const metadata: Metadata = {
     'عقارات فاخرة مراكش', 'شراء فيلا مراكش', 'رياض للبيع مراكش',
     'وكالة عقارية مراكش', 'استثمار عقاري مراكش', 'عقار مراكش',
   ],
-  authors: [{ name: 'Palais Rouge Immo', url: 'https://palaisrouge.online' }],
-  creator: 'Palais Rouge Immo',
-  publisher: 'Palais Rouge Immo',
+  authors: [{ name: 'Kamar Immob', url: 'https://kamarimmob.com' }],
+  creator: 'Kamar Immob',
+  publisher: 'Kamar Immob',
   category: 'Real Estate',
   alternates: {
-    canonical: 'https://palaisrouge.online',
-    languages: {
-      'fr-MA': 'https://palaisrouge.online',
-      'en': 'https://palaisrouge.online',
-      'ar-MA': 'https://palaisrouge.online',
-      'x-default': 'https://palaisrouge.online',
-    },
+    canonical: 'https://kamarimmob.com',
   },
   openGraph: {
     type: 'website',
     locale: 'fr_MA',
     alternateLocale: ['en_US', 'ar_MA'],
-    url: 'https://palaisrouge.online',
-    siteName: 'Palais Rouge Immo',
-    title: 'Palais Rouge Immo | Agence Immobilière Luxe Marrakech',
+    url: 'https://kamarimmob.com',
+    siteName: 'Kamar Immob',
+    title: 'Kamar Immob | Agence Immobilière Luxe Marrakech',
     description:
-      "N°1 de l'immobilier de luxe à Marrakech. " +
+      "spécialiste de l'immobilier de luxe à Marrakech. " +
       'Villas, riads, appartements de prestige. ' +
-      'Achat, vente, investissement avec Palais Rouge Immo.',
+      'Achat, vente, investissement avec Kamar Immob.',
     images: [
       {
-        url: 'https://palaisrouge.online/og-home.svg',
+        url: 'https://kamarimmob.com/og-home.svg',
         width: 1200,
         height: 630,
-        alt: 'Palais Rouge Immo — Immobilier de Luxe Marrakech',
+        alt: 'Kamar Immob — Immobilier de Luxe Marrakech',
         type: 'image/svg+xml',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@palaisrougeimmo',
-    creator: '@palaisrougeimmo',
-    title: 'Palais Rouge Immo | Immobilier de Luxe Marrakech',
-    description: "N°1 immobilier luxe Marrakech. Villas, riads, appartements.",
-    images: ['https://palaisrouge.online/og-home.svg'],
+    title: 'Kamar Immob | Immobilier de Luxe Marrakech',
+    description: "Immobilier de luxe à Marrakech. Villas, riads, appartements.",
+    images: ['https://kamarimmob.com/og-home.svg'],
   },
   robots: {
     index: true,
@@ -120,12 +112,8 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: '/apple-touch-icon.png',
-    shortcut: '/favicon-16x16.png',
+    icon: [{ url: '/logo.svg', type: 'image/svg+xml' }],
+    shortcut: '/logo.svg',
   },
   manifest: '/site.webmanifest',
   verification: {
@@ -148,14 +136,9 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <head>
-        <link rel="alternate" hrefLang="fr-MA" href="https://palaisrouge.online" />
-        <link rel="alternate" hrefLang="en" href="https://palaisrouge.online" />
-        <link rel="alternate" hrefLang="ar-MA" href="https://palaisrouge.online" />
-        <link rel="alternate" hrefLang="x-default" href="https://palaisrouge.online" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="preconnect" href="https://res.cloudinary.com" />
-        <link rel="dns-prefetch" href="https://jiqwqiztzsudjwdkbgoj.supabase.co" />
       </head>
       <body
         className={`${playfair.variable} ${dmSans.variable} ${notoArabic.variable} antialiased`}
