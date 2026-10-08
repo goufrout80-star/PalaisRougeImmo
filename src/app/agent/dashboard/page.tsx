@@ -67,9 +67,6 @@ export default function AgentDashboardPage() {
   const [profileSuccess, setProfileSuccess] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
-  const [has2FA,    setHas2FA]    = useState(false)
-  const [loading2FA, setLoading2FA] = useState(true)
-
   const [editingPriceId,    setEditingPriceId]    = useState<string | null>(null)
   const [editingPriceValue, setEditingPriceValue] = useState<string>('')
 
@@ -112,12 +109,6 @@ export default function AgentDashboardPage() {
     setLoadingLeads(false)
   }, [user, supabase])
 
-  const check2FA = useCallback(async () => {
-    const { data } = await supabase.auth.mfa.listFactors()
-    setHas2FA(data?.totp?.some((f: any) => f.status === 'verified') ?? false)
-    setLoading2FA(false)
-  }, [supabase])
-
   useEffect(() => {
     if (!user) return
     setProfile({
@@ -127,7 +118,7 @@ export default function AgentDashboardPage() {
       bio:        user.bio ?? '',
       avatar_url: user.avatar ?? '',
     })
-    Promise.all([loadStats(), loadProperties(), loadLeads(), check2FA()]).then(() => setLoading(false))
+    Promise.all([loadStats(), loadProperties(), loadLeads()]).then(() => setLoading(false))
   }, [user])
 
   // Real-time: contact submissions for agent's properties
@@ -712,23 +703,6 @@ export default function AgentDashboardPage() {
               <h1 className="text-2xl font-display font-bold text-[var(--noir)]">Sécurité</h1>
 
               <div className="bg-white rounded-xl border border-[var(--border)] p-6 space-y-6">
-                {/* 2FA */}
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="font-medium text-[var(--noir)]">Authentification à deux facteurs (2FA)</p>
-                    <p className="text-sm text-[var(--muted)] mt-0.5">
-                      {loading2FA ? 'Vérification...' : has2FA ? 'Activée — votre compte est protégé' : "Désactivée — nous recommandons de l'activer"}
-                    </p>
-                  </div>
-                  {!loading2FA && (
-                    has2FA
-                      ? <span className="text-xs bg-green-100 text-green-700 font-semibold px-3 py-1.5 rounded-full shrink-0">Activée</span>
-                      : <Link href="/2fa/setup" className="bg-[var(--rouge)] hover:opacity-90 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-opacity shrink-0">Activer</Link>
-                  )}
-                </div>
-
-                <hr className="border-[var(--border)]" />
-
                 <div>
                   <p className="font-medium text-[var(--noir)]">Adresse email</p>
                   <p className="text-sm text-[var(--muted)] mt-0.5">{user.email}</p>

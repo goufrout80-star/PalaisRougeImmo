@@ -34,29 +34,8 @@ export default function LoginPage() {
 
     const user = data.user;
     const role = user?.app_metadata?.role ?? 'user';
-    const mfaSkipped = user?.user_metadata?.mfa_skipped;
-
+    // MFA enrollment and challenges are temporarily disabled during setup.
     logLogin(role, email);
-
-    const { data: factors } = await supabase.auth.mfa.listFactors();
-    const hasVerifiedFactor = factors?.totp?.some(
-      (f) => f.status === 'verified'
-    );
-
-    if (hasVerifiedFactor) {
-      router.push('/2fa/verify');
-      return;
-    }
-
-    if (role === 'admin') {
-      router.push('/2fa/setup');
-      return;
-    }
-
-    if (role === 'agent' && !mfaSkipped) {
-      router.push('/2fa/setup');
-      return;
-    }
 
     if (role === 'admin') router.push('/admin/dashboard');
     else if (role === 'agent') router.push('/agent/dashboard');

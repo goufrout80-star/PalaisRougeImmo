@@ -27,7 +27,6 @@ export async function updateSession(request: NextRequest) {
   const isAdminRoute    = path.startsWith('/admin')
   const isAgentRoute    = path.startsWith('/agent')
   const isDashboardRoute = path.startsWith('/dashboard')
-  const is2FARoute      = path.startsWith('/2fa')
   const isLoginPage     = path === '/login'
 
   // Not logged in — redirect to login
@@ -40,20 +39,8 @@ export async function updateSession(request: NextRequest) {
   if (user) {
     const role = user.app_metadata?.role ?? ''
 
-    // Check MFA assurance level for admin routes
-    if (role === 'admin' && isAdminRoute) {
-      const { data: aal } =
-        await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
-
-      const mfaVerified   = aal?.currentLevel === 'aal2'
-      const hasEnrolled   = aal?.nextLevel === 'aal2'
-
-      if (!mfaVerified) {
-        const url = request.nextUrl.clone()
-        url.pathname = hasEnrolled ? '/2fa/verify' : '/2fa/setup'
-        return NextResponse.redirect(url)
-      }
-    }
+    // Admin and agent access is still controlled by protected app_metadata roles.
+    // Temporary setup phase: password authentication is sufficient (no MFA redirect).
 
     // Redirect logged-in user away from login page
     if (isLoginPage) {

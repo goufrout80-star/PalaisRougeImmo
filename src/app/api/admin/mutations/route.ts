@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid action or table' }, { status: 400 })
   }
 
-  // Preserve RLS and the signed-in admin's MFA assurance level.
+  // Preserve RLS and protected role-based authorization.
   const sb = await createClient()
 
   try {
