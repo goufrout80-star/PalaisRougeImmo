@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Home, Building2, Castle, Store, Landmark, MapPin, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useI18n } from '@/context/I18nContext';
@@ -13,7 +13,11 @@ export default function ValuationPage() {
   const { neighborhoods } = useCities();
   const NEIGHBORHOODS = neighborhoods.map(n => n.name_fr);
   const [step, setStep] = useState(1);
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted,setSubmitted] = useState(false);
+  const [submitting,setSubmitting] = useState(false);
+  const [submitError,setSubmitError] = useState('');
+  const [lead,setLead] = useState({name:'',email:'',phone:''});
+  const submitLock = useRef(false);
   const [data, setData] = useState({
     propertyType: '',
     bedrooms: 3,
@@ -34,26 +38,34 @@ export default function ValuationPage() {
     { type: 'LAND', icon: Landmark, label: t('property.land') },
   ];
 
-  useEffect(() => {
-    if (step === 4 && !submitted) {
-      setSubmitted(true);
-      trackEvent('valuation_complete', 'lead', 'valuation_form');
-      const estimated = estimatePrice();
-      fetch('/api/valuation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: '',
-          email: '',
-          phone: '',
-          property_type: data.propertyType,
-          location: data.neighborhood,
-          area_sqm: data.surfaceArea,
-          message: `Estimation automatique: ${estimated} MAD`,
+  const submitLead = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (submitLock.current) return;
+    submitLock.current = true;
+    setSubmitting(true);
+    setSubmitError('');
+    try {
+      const response = await fetch('/api/valuation', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          name:lead.name,email:lead.email,phone:lead.phone,
+          property_type:data.propertyType.toLowerCase(),
+          location:data.neighborhood,area_sqm:data.surfaceArea,
+          message:`Simulation indicative : ${estimatePrice()} MAD`,
         }),
-      }).catch(console.error);
+      });
+      if (!response.ok) throw new Error(`Valuation request error ${response.status}`);
+      setSubmitted(true);
+      trackEvent('valuation_complete','lead','valuation_form');
+    } catch (error) {
+      console.error('[Valuation] Lead not saved:',error);
+      setSubmitError("Impossible d'enregistrer la demande. Réessayez.");
+    } finally {
+      submitLock.current = false;
+      setSubmitting(false);
     }
-  }, [step]);
+  };
 
   const estimatePrice = () => {
     const basePrices: Record<string, number> = { HOUSE: 15000, APARTMENT: 12000, VILLA: 22000, COMMERCIAL: 10000, LAND: 5000 };
@@ -190,12 +202,35 @@ export default function ValuationPage() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-8">
               <CheckCircle className="w-16 h-16 text-[var(--gold)] mx-auto mb-6" />
               <h2 className="font-display text-xl font-bold text-[var(--rouge)] mb-2">{t('valuation.step4')}</h2>
-              <p className="text-sm text-[var(--stone)] mb-8">Estimation basée sur les données du marché actuel</p>
+              <p className="text-sm text-[var(--stone)] mb-8">Simulation indicative, non basée sur une expertise ou des transactions vérifiées.</p>
               <div className="bg-[var(--parchment)] rounded-2xl p-8 max-w-sm mx-auto">
                 <div className="text-sm text-[var(--stone)] mb-2">Valeur estimée</div>
                 <div className="font-display text-4xl font-bold text-[var(--rouge)]">{formatCurrency(estimatePrice())}</div>
-                <div className="text-xs text-[var(--stone)] mt-2">± 10% selon les conditions du marché</div>
+                <div className="text-xs text-[var(--stone)] mt-2">Montant non garanti : une évaluation humaine est nécessaire.</div>
               </div>
+              {submitted ? (
+                <p role="status" className="text-green-700 font-medium mt-5">Demande enregistrée. Nous vous recontacterons.</p>
+              ) : (
+                <form onSubmit={submitLead} className="max-w-sm mx-auto mt-6 space-y-3 text-left">
+                  <h3 className="font-semibold text-[var(--rouge)]">Demander un suivi personnalisé</h3>
+                  <label className="block text-sm">Nom
+                    <input className="input-luxury mt-1" value={lead.name} required minLength={2} maxLength={100}
+                      onChange={e=>setLead({...lead,name:e.target.value})}/>
+                  </label>
+                  <label className="block text-sm">Email
+                    <input className="input-luxury mt-1" type="email" value={lead.email} required
+                      onChange={e=>setLead({...lead,email:e.target.value})}/>
+                  </label>
+                  <label className="block text-sm">Téléphone (facultatif)
+                    <input className="input-luxury mt-1" type="tel" value={lead.phone}
+                      onChange={e=>setLead({...lead,phone:e.target.value})}/>
+                  </label>
+                  {submitError && <p role="alert" className="text-sm text-red-600">{submitError}</p>}
+                  <Button type="submit" disabled={submitting} className="w-full">
+                    {submitting?'Envoi...':'Envoyer ma demande'}
+                  </Button>
+                </form>
+              )}
             </motion.div>
           )}
 
@@ -208,12 +243,12 @@ export default function ValuationPage() {
               </Button>
             ) : <div />}
             {step < 4 ? (
-              <Button onClick={() => setStep(step + 1)} disabled={step === 1 && !data.propertyType || step === 3 && !data.neighborhood}>
+              <Button onClick={() => setStep(step + 1)} disabled={(step === 1 && !data.propertyType) || (step === 2 && data.surfaceArea <= 0) || (step === 3 && !data.neighborhood)}>
                 {t('common.next')}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button onClick={() => { setStep(1); setData({ ...data, propertyType: '', neighborhood: '' }); }}>
+              <Button onClick={() => { setStep(1); setSubmitted(false); setLead({name:'',email:'',phone:''}); setSubmitError(''); setData({ ...data, propertyType: '', neighborhood: '' }); }}>
                 Nouvelle estimation
               </Button>
             )}

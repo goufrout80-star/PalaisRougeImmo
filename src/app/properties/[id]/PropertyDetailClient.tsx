@@ -29,8 +29,9 @@ export default function PropertyDetailClient() {
   const [currentImage, setCurrentImage] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
-  const [agencyPhone, setAgencyPhone] = useState('+212524430000');
-  const [agencyWhatsapp, setAgencyWhatsapp] = useState('+212524430000');
+  const [agencyPhone, setAgencyPhone] = useState('');
+  const [agencyWhatsapp, setAgencyWhatsapp] = useState('');
+  const [agencyEmail, setAgencyEmail] = useState('');
   const [agentProfile, setAgentProfile] = useState<{ full_name?: string; avatar_url?: string; phone?: string; whatsapp?: string } | null>(null);
 
   useEffect(() => {
@@ -38,11 +39,12 @@ export default function PropertyDetailClient() {
     supabase
       .from('site_settings')
       .select('key, value')
-      .in('key', ['agency_phone', 'agency_whatsapp'])
+      .in('key', ['agency_phone', 'agency_whatsapp', 'agency_email'])
       .then(({ data }) => {
         data?.forEach(({ key, value }: { key: string; value: string }) => {
           if (key === 'agency_phone') setAgencyPhone(value ?? '');
           if (key === 'agency_whatsapp') setAgencyWhatsapp(value ?? '');
+          if (key === 'agency_email') setAgencyEmail(value ?? '');
         });
       });
   }, []);
@@ -114,13 +116,13 @@ export default function PropertyDetailClient() {
     PENDING: { bg: 'bg-amber-600', text: 'Ce bien est réservé', ribbon: 'RÉSERVÉ' },
   }[property.status] : null;
 
-  const propertyUrl = `https://palaisrouge.online/properties/${property.id}`;
+  const propertyUrl = `https://kamarimmob.com/properties/${property.id}`;
 
   return (
     <div className="pt-32 pb-20 bg-[var(--linen)] min-h-screen">
       <BreadcrumbJsonLd items={[
-        { name: 'Accueil', url: 'https://palaisrouge.online' },
-        { name: 'Propriétés', url: 'https://palaisrouge.online/properties' },
+        { name: 'Accueil', url: 'https://kamarimmob.com' },
+        { name: 'Propriétés', url: 'https://kamarimmob.com/properties' },
         { name: property.title, url: propertyUrl },
       ]} />
       <PropertyJsonLd property={{
@@ -181,7 +183,7 @@ export default function PropertyDetailClient() {
                 ) : (
                   <div className="w-full h-full bg-[var(--linen)] flex flex-col items-center justify-center gap-3">
                     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-[var(--muted)] opacity-30"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                    <span className="text-sm text-[var(--muted)] opacity-50 font-medium">Palais Rouge Immo</span>
+                    <span className="text-sm text-[var(--muted)] opacity-50 font-medium">Kamar Immob</span>
                   </div>
                 )}
                 {/* Nav arrows */}
@@ -347,12 +349,13 @@ export default function PropertyDetailClient() {
               {/* Location Map */}
               <div className="mt-6">
                 <h3 className="font-display text-lg font-bold text-[var(--rouge)] mb-3">{t('property.location')}</h3>
-                <GoogleMap
-                  latitude={property.latitude || 31.6295}
-                  longitude={property.longitude || -7.9811}
+                {property.latitude && property.longitude ? (
+                <GoogleMap latitude={property.latitude} longitude={property.longitude}
                   address={`${property.address}, ${property.neighborhood}`}
-                  className="h-64 w-full rounded-xl border border-[var(--border)]"
-                />
+                  className="h-64 w-full rounded-xl border border-[var(--border)]" />
+              ) : (
+                <p className="text-sm text-[var(--stone)]">Localisation précise non fournie. Contactez l'agence pour les détails.</p>
+              )}
               </div>
             </motion.div>
           </div>
@@ -377,24 +380,24 @@ export default function PropertyDetailClient() {
                 </div>
                 <div>
                   <div className="font-medium text-[var(--rouge)]">{agentProfile?.full_name || property.agentName || 'Agent'}</div>
-                  <div className="text-xs text-[var(--stone)]">Palais Rouge Immo</div>
+                  <div className="text-xs text-[var(--stone)]">Kamar Immob</div>
                 </div>
               </div>
 
               <div className="space-y-3 mb-6">
-                <a href={`tel:${agentProfile?.phone ?? agencyPhone}`} className="flex items-center gap-3 p-3 bg-[var(--parchment)] rounded-lg hover:bg-[var(--border)] transition-colors">
+                {(agentProfile?.phone || agencyPhone) && <a href={`tel:${agentProfile?.phone || agencyPhone}`} className="flex items-center gap-3 p-3 bg-[var(--parchment)] rounded-lg hover:bg-[var(--border)] transition-colors">
                   <Phone className="w-4 h-4 text-[var(--gold)]" />
-                  <span className="text-sm text-[var(--rouge)]">{agentProfile?.phone ?? agencyPhone}</span>
-                </a>
-                <a href="mailto:contact@palaisrouge.online" className="flex items-center gap-3 p-3 bg-[var(--parchment)] rounded-lg hover:bg-[var(--border)] transition-colors">
+                  <span className="text-sm text-[var(--rouge)]">{agentProfile?.phone || agencyPhone}</span>
+                </a>}
+                <a href="mailto:contact@kamarimmob.com" className="flex items-center gap-3 p-3 bg-[var(--parchment)] rounded-lg hover:bg-[var(--border)] transition-colors">
                   <Mail className="w-4 h-4 text-[var(--gold)]" />
-                  <span className="text-sm text-[var(--rouge)]">contact@palaisrouge.online</span>
+                  <span className="text-sm text-[var(--rouge)]">contact@kamarimmob.com</span>
                 </a>
               </div>
 
               <div className="space-y-3">
-                <a
-                  href={`https://wa.me/${(agentProfile?.whatsapp ?? agencyWhatsapp).replace(/\D/g, '')}?text=${encodeURIComponent(`Bonjour, je suis intéressé par : ${property.title} — ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
+                {(agentProfile?.whatsapp || agencyWhatsapp) && <a
+                  href={`https://wa.me/${(agentProfile?.whatsapp || agencyWhatsapp).replace(/\D/g, '')}?text=${encodeURIComponent(`Bonjour, je suis intéressé par : ${property.title} — ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Contacter via WhatsApp pour ${property.title}`}
@@ -403,16 +406,16 @@ export default function PropertyDetailClient() {
                 >
                   <MessageCircle className="w-5 h-5" />
                   WhatsApp
-                </a>
-                <a
-                  href={`tel:${agentProfile?.phone ?? agencyPhone}`}
+                </a>}
+                {(agentProfile?.phone || agencyPhone) && <a
+                  href={`tel:${agentProfile?.phone || agencyPhone}`}
                   aria-label={`Appeler l'agent pour ${property.title}`}
                   onClick={() => { trackEvent('call_click', 'lead', property.title); logCallClick(property.title, property.id); }}
                   className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-[var(--rouge)] hover:bg-[var(--rouge-dark)] text-white font-semibold rounded-xl transition-colors"
                 >
                   <Phone className="w-5 h-5" />
                   Appeler
-                </a>
+                </a>}
                 <Link href="/contact" className="block">
                   <Button className="w-full" variant="outline">{t('property.contactAgent')}</Button>
                 </Link>

@@ -54,6 +54,8 @@ export default function AdminDashboardPage() {
   const [activeSection, setActiveSection] = useState<Section>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
+  const [mutationNotice, setMutationNotice] = useState('');
+  const [mutationBusy, setMutationBusy] = useState(false);
 
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
@@ -312,23 +314,33 @@ export default function AdminDashboardPage() {
     };
     if (post.id) dbFields.id = post.id;
     else dbFields.slug = slug;
-    await fetch('/api/admin/blog', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch('/api/admin/blog', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(dbFields),
     });
+    if (!response.ok) {
+      setMutationNotice("Impossible d'enregistrer l'article. Veuillez réessayer.");
+      return false;
+    }
+    setMutationNotice('Article enregistré.');
     logAdminAction(post.id ? 'blog_saved' : 'blog_created', 'blog', post.title);
-    fetchAll();
+    await fetchAll();
+    return true;
   };
   const deleteBlogPost = async (id: string) => {
     const blog = blogPosts.find(b => b.id === id);
-    await fetch('/api/admin/blog', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+    if (!window.confirm("Supprimer cet article ?")) return;
+    const response = await fetch('/api/admin/blog', {
+      method: 'DELETE', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
+    if (!response.ok) {
+      setMutationNotice("Suppression impossible. L'article est conservé.");
+      return;
+    }
     logAdminAction('blog_deleted', 'blog', blog?.title_fr ?? blog?.title);
     setBlogPosts(prev => prev.filter(p => p.id !== id));
+    setMutationNotice('Article supprimé.');
   };
   const toggleBlogPublish = async (id: string, current: boolean) => {
     const res = await fetch('/api/admin/blog', {
@@ -364,20 +376,28 @@ export default function AdminDashboardPage() {
         question_fr: item.question, answer_fr: item.answer, category: item.category,
         is_published: true, sort_order: 0,
       });
-      if (data) setFaqs(prev => [{ id: data.id, question: data.question_fr ?? '', answer: data.answer_fr ?? '', category: data.category ?? 'buying' }, ...prev]);
+      if (!data) { setMutationNotice("Impossible de créer la FAQ."); return false; }
+      setFaqs(prev => [{ id: data.id, question: data.question_fr ?? '', answer: data.answer_fr ?? '', category: data.category ?? 'buying' }, ...prev]);
     } else {
-      await adminMutate('update', 'faq_items', {
+      const data = await adminMutate('update', 'faq_items', {
         question_fr: item.question, answer_fr: item.answer, category: item.category,
       }, item.id);
+      if (!data) { setMutationNotice("Impossible de modifier la FAQ."); return false; }
       setFaqs(prev => prev.map(f => f.id === item.id ? { ...f, ...item } : f));
     }
+    setMutationNotice('FAQ enregistrée.');
+    return true;
   };
   const deleteFaqFromDB = async (id: string) => {
-    await adminMutate('delete', 'faq_items', undefined, id);
+    if (!window.confirm('Supprimer cette FAQ ?')) return;
+    const result = await adminMutate('delete', 'faq_items', undefined, id);
+    if (!result) { setMutationNotice('Impossible de supprimer la FAQ.'); return; }
     setFaqs(prev => prev.filter(f => f.id !== id));
+    setMutationNotice('FAQ supprimée.');
   };
   const saveContactInfo = async (info: ContactInfo) => {
-    setContactInfo(info);
+    setMutationBusy(true);
+    setMutationNotice('');
     const rows = [
       { key: 'agency_phone', value: info.phone },
       { key: 'agency_email', value: info.email },
@@ -389,8 +409,18 @@ export default function AdminDashboardPage() {
       { key: 'linkedin', value: info.linkedin ?? '' },
       { key: 'twitter', value: info.twitter ?? '' },
     ];
-    for (const row of rows) {
-      await adminMutate('upsert', 'site_settings', row);
+    try {
+      const results = await Promise.all(rows.map(row => adminMutate('upsert','site_settings',row)));
+      if (results.some(r => r === null)) {
+        setMutationNotice("Certains paramètres n'ont pas été enregistrés. Réessayez.");
+        return;
+      }
+      setContactInfo(info);
+      setMutationNotice('Coordonnées enregistrées.');
+    } catch {
+      setMutationNotice('Erreur pendant la sauvegarde des coordonnées.');
+    } finally {
+      setMutationBusy(false);
     }
   };
   const sendPasswordReset = async (email: string, agentId: string) => {
@@ -435,16 +465,23 @@ export default function AdminDashboardPage() {
   };
 
   const handleSaveBlog = async () => {
-    await saveBlogPost(editingItem ? { ...editingItem, ...blogForm } : blogForm);
-    setShowModal(false);
+    setMutationBusy(true);
+    try {
+      if (await saveBlogPost(editingItem ? { ...editingItem, ...blogForm } : blogForm))
+        setShowModal(false);
+    } catch { setMutationNotice("Erreur pendant la sauvegarde de l'article."); }
+    finally { setMutationBusy(false); }
   };
 
   const handleSaveFaq = async () => {
-    await saveFaqToDB(
-      editingItem ? { ...(editingItem as FaqItem), ...faqForm } : { id: '', ...faqForm },
-      !editingItem
-    );
-    setShowModal(false);
+    setMutationBusy(true);
+    try {
+      if (await saveFaqToDB(
+        editingItem ? { ...(editingItem as FaqItem), ...faqForm } : { id: '', ...faqForm },
+        !editingItem
+      )) setShowModal(false);
+    } catch { setMutationNotice("Erreur pendant la sauvegarde de la FAQ."); }
+    finally { setMutationBusy(false); }
   };
 
   const filteredListings = listingsFilter === 'all' ? properties : properties.filter(p => listingsFilter === 'sale' ? p.listingType === 'BUY' : p.listingType === 'RENT');
@@ -687,6 +724,8 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
+          {mutationNotice && <div role="status" className="mb-4 rounded-lg border border-[var(--border)] bg-white p-3 text-sm">{mutationNotice}</div>}
+
           {/* Blog Posts */}
           {activeSection === 'blog' && (
             <div>
@@ -773,7 +812,7 @@ export default function AdminDashboardPage() {
                     </div>
                   ))}
                 </div>
-                <Button className="mt-6" onClick={async () => { await saveContactInfo(contactInfo); }}>{t('common.save')}</Button>
+                <Button className="mt-6" disabled={mutationBusy} onClick={async () => { await saveContactInfo(contactInfo); }}>{t('common.save')}</Button>
               </div>
             </div>
           )}
@@ -841,8 +880,9 @@ export default function AdminDashboardPage() {
                       {!entry.is_read && (
                         <button
                           onClick={async () => {
-                            await adminMutate('update', 'contact_submissions', { is_read: true }, entry.id);
-                            setFormEntries(prev => prev.map(f => f.id === entry.id ? { ...f, is_read: true } : f));
+                            const saved = await adminMutate('update', 'contact_submissions', { is_read: true }, entry.id);
+                            if (saved) setFormEntries(prev => prev.map(f => f.id === entry.id ? { ...f, is_read: true } : f));
+                            else setMutationNotice('Impossible de marquer le message comme lu.');
                           }}
                           className="mt-3 text-xs text-[var(--gold-light)] hover:underline cursor-pointer"
                         >
@@ -980,8 +1020,9 @@ export default function AdminDashboardPage() {
                             {!v.is_read ? (
                               <button
                                 onClick={async () => {
-                                  await adminMutate('update', 'valuation_requests', { is_read: true }, v.id);
-                                  setValuations(prev => prev.map(x => x.id === v.id ? { ...x, is_read: true } : x));
+                                  const saved = await adminMutate('update', 'valuation_requests', { is_read: true }, v.id);
+                                  if (saved) setValuations(prev => prev.map(x => x.id === v.id ? { ...x, is_read: true } : x));
+                                  else setMutationNotice("Impossible de marquer l'estimation comme lue.");
                                 }}
                                 className="text-xs text-[var(--gold-light)] hover:underline cursor-pointer"
                               >
@@ -1244,7 +1285,7 @@ export default function AdminDashboardPage() {
                     />
                   </div>
                 )}
-                <Button onClick={handleSaveBlog} className="w-full">{t('common.save')}</Button>
+                <Button onClick={handleSaveBlog} disabled={mutationBusy} className="w-full">{t('common.save')}</Button>
               </div>
             )}
 
@@ -1267,7 +1308,7 @@ export default function AdminDashboardPage() {
                     <option value="working">Working with us</option>
                   </select>
                 </div>
-                <Button onClick={handleSaveFaq} className="w-full">{t('common.save')}</Button>
+                <Button onClick={handleSaveFaq} disabled={mutationBusy} className="w-full">{t('common.save')}</Button>
               </div>
             )}
           </div>

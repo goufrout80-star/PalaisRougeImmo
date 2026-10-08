@@ -29,7 +29,10 @@ export default function ImageUpload({ images, onChange, folder = 'properties' }:
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      if (!file.type.startsWith('image/')) continue;
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        setError('Format non pris en charge (JPG, PNG, WebP uniquement).');
+        continue;
+      }
       if (file.size > 10 * 1024 * 1024) {
         setError('Image must be less than 10MB');
         continue;
@@ -41,25 +44,21 @@ export default function ImageUpload({ images, onChange, folder = 'properties' }:
         formData.append('folder', folder);
 
         const res = await fetch('/api/upload', { method: 'POST', body: formData });
-
-        if (res.ok) {
-          const data = await res.json();
-          if (data.url) {
-            newUrls.push(data.url);
-            if (data.publicId) publicIds.current.set(data.url, data.publicId);
-            continue;
-          }
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.error || 'Le téléversement a échoué.');
         }
-
-        const base64 = await fileToBase64(file);
-        newUrls.push(base64);
-      } catch {
-        const base64 = await fileToBase64(file);
-        newUrls.push(base64);
+        const data = await res.json();
+        if (!data.url || !data.publicId) throw new Error('Réponse invalide du stockage.');
+        newUrls.push(data.url);
+        publicIds.current.set(data.url, data.publicId);
+      } catch (err) {
+        console.error('[Media] Upload failed:', err);
+        setError('Certaines photos n’ont pas été enregistrées. Réessayez. Aucune image locale temporaire ne sera publiée.');
       }
     }
 
-    onChange([...images, ...newUrls]);
+    if (newUrls.length) onChange([...images, ...newUrls]);
     setUploading(false);
     if (inputRef.current) inputRef.current.value = '';
   };
@@ -68,18 +67,9 @@ export default function ImageUpload({ images, onChange, folder = 'properties' }:
     const url = images[index];
     const publicId = publicIds.current.get(url);
 
-    if (publicId) {
-      try {
-        await fetch('/api/upload', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ publicId }),
-        });
-      } catch {
-        console.warn('[ImageUpload] Cloudinary delete failed for', publicId);
-      }
-      publicIds.current.delete(url);
-    }
+    // Removing a thumbnail must not destroy a shared/published Cloudinary asset.
+    // Orphan cleanup is a separate, privileged maintenance operation.
+    if (publicId) publicIds.current.delete(url);
 
     onChange(images.filter((_, i) => i !== index));
   }, [images, onChange]);
@@ -165,7 +155,7 @@ export default function ImageUpload({ images, onChange, folder = 'properties' }:
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
         multiple
         onChange={handleFileSelect}
         className="hidden"
@@ -174,11 +164,3 @@ export default function ImageUpload({ images, onChange, folder = 'properties' }:
   );
 }
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}

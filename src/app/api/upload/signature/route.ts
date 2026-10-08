@@ -8,10 +8,12 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url)
   const folder    = searchParams.get('folder') ?? 'properties'
+  if (!['properties','blog','agents'].includes(folder)) return NextResponse.json({error:'Dossier invalide'},{status:400})
+  if (!process.env.CLOUDINARY_API_SECRET || !process.env.CLOUDINARY_API_KEY) return NextResponse.json({error:'Cloudinary indisponible'},{status:503})
   const timestamp = String(Math.round(Date.now() / 1000))
 
   const paramsToSign = {
-    folder: `palaisrouge/${folder}`,
+    folder: `kamarimmob/${folder}`,
     timestamp,
   }
 
@@ -22,6 +24,6 @@ export async function GET(req: NextRequest) {
     timestamp,
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     apiKey:    process.env.CLOUDINARY_API_KEY,
-    folder:    `palaisrouge/${folder}`,
+    folder:    `kamarimmob/${folder}`,
   })
 }
