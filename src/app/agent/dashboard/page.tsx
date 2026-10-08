@@ -207,7 +207,8 @@ export default function AgentDashboardPage() {
   }
 
   const handleMarkLeadRead = async (id: string) => {
-    await fetch('/api/admin/mutations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', table: 'contact_submissions', data: { is_read: true }, id }) })
+    const { error } = await supabase.from('contact_submissions').update({ is_read: true }).eq('id', id)
+    if (error) { console.error('[Agent] Unable to mark lead read:', error); return }
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, is_read: true } : l)))
   }
 

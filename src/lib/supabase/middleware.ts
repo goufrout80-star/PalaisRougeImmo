@@ -38,7 +38,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user) {
-    const role = user.user_metadata?.role ?? ''
+    const role = user.app_metadata?.role ?? ''
 
     // Check MFA assurance level for admin routes
     if (role === 'admin' && isAdminRoute) {

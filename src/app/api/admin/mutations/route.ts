@@ -25,7 +25,7 @@ function isAllowedTable(t: string): t is AllowedTable {
 
 // POST — generic admin mutation: { action, table, data, id? }
 export async function POST(req: NextRequest) {
-  const auth = await requireAuth(req, ['admin', 'agent'])
+  const auth = await requireAuth(req, ['admin'])
   if (auth.error) return auth.error
 
   const { action, table, data, id } = await req.json()
