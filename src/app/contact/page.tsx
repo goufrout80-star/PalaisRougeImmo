@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from 'lucide-react';
 import { useI18n } from '@/context/I18nContext';
@@ -13,6 +13,10 @@ export default function ContactPage() {
   const { t } = useI18n();
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  // Lock immediately, before the first await, to prevent double-click requests.
+  const submitLock = useRef(false);
   const [settings, setSettings] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -28,20 +32,29 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLock.current) return;
+    submitLock.current = true;
+    setSubmitting(true);
+    setSubmitError('');
     try {
-      await fetch('/api/contact', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, source: 'Page Contact' }),
       });
-    } catch (err) {
-      console.warn('Contact API unavailable.');
-    }
+      if (!response.ok) throw new Error(`Contact endpoint returned ${response.status}`);
 
-    setSubmitted(true);
-    trackEvent('form_submit', 'lead', 'contact_form');
-    setFormData({ name: '', email: '', phone: '', message: '' });
-    setTimeout(() => setSubmitted(false), 3000);
+      setSubmitted(true);
+      trackEvent('form_submit', 'lead', 'contact_form');
+      setFormData({ name: '', email: '', phone: '', message: '' });
+      setTimeout(() => setSubmitted(false), 3000);
+    } catch (err) {
+      console.error('[Contact] Submission failed:', err);
+      setSubmitError(t('contact.submitFailed'));
+    } finally {
+      submitLock.current = false;
+      setSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -111,9 +124,10 @@ export default function ContactPage() {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full">
+                  {submitError && <p role="alert" className="text-sm text-red-600">{submitError}</p>}
+                  <Button type="submit" className="w-full" disabled={submitting}>
                     <Send className="w-4 h-4 mr-2" />
-                    {t('contact.send')}
+                    {submitting ? t('contact.sending') : t('contact.send')}
                   </Button>
                 </form>
               )}

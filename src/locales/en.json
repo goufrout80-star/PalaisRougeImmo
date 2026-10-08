@@ -148,6 +148,8 @@
     "resetFilters": "Reset Filters"
   },
   "contact": {
+    "sending": "Sending...",
+    "submitFailed": "Unable to send your message. Please try again.",
     "title": "Contact Us",
     "subtitle": "Our team is at your service",
     "name": "Full Name",
