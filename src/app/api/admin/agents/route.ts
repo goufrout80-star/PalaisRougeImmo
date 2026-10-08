@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   }
 
   const agents = (data.users ?? [])
-    .filter(u => u.user_metadata?.role === 'agent')
+    .filter(u => u.app_metadata?.role === 'agent')
     .map(u => ({
       id: u.id,
       name: u.user_metadata?.name ?? u.user_metadata?.full_name ?? u.email ?? 'Agent',

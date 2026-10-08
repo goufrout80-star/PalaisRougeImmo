@@ -26,7 +26,7 @@ export async function requireAuth(
       }
     }
 
-    const role = user.user_metadata?.role ?? 'user'
+    const role = user.app_metadata?.role ?? 'user'
 
     if (
       !allowedRoles.includes('any') &&
@@ -42,6 +42,15 @@ export async function requireAuth(
       }
     }
 
+    if (role === 'admin') {
+      const { data: assurance, error: mfaError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+      if (mfaError || assurance?.currentLevel !== 'aal2') {
+        return {
+          user: null, role: null,
+          error: NextResponse.json({ error: 'MFA_REQUIRED' }, { status: 403 }),
+        }
+      }
+    }
     return { user, role, error: null }
   } catch (err) {
     return {

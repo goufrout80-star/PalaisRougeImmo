@@ -31,7 +31,7 @@ function supabaseUserToAppUser(sbUser: import('@supabase/supabase-js').User): Us
     username: sbUser.email ?? '',
     email: sbUser.email ?? '',
     name: meta.name ?? meta.full_name ?? sbUser.email ?? '',
-    role: (meta.role as Role) ?? 'user',
+    role: (sbUser.app_metadata?.role as Role) ?? 'user',
     phone: meta.phone,
     avatar: meta.avatar_url,
     bio: meta.bio,
