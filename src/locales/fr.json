@@ -124,7 +124,8 @@
     "views": "Vues",
     "addProperty": "Ajouter une propriété",
     "editProperty": "Modifier la propriété",
-    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette propriété ?"
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette propriété ?",
+    "publishNow": "Publier l’annonce maintenant (visible aux visiteurs)"
   },
   "search": {
     "title": "Recherche avancée",

@@ -47,7 +47,7 @@ export default function NewPropertyPage() {
     hasSecurity: false,
     images: [] as string[],
     featured: false,
-    approved: true,
+    approved: false,
   });
 
   useEffect(() => {
@@ -302,6 +302,14 @@ export default function NewPropertyPage() {
               </div>
             </div>
           </div>
+          {user?.role === 'admin' && (
+            <label className="flex items-center gap-3 text-sm text-[var(--charcoal)]">
+              <input type="checkbox" checked={form.approved}
+                onChange={(e) => setForm({ ...form, approved: e.target.checked })}
+                className="h-4 w-4 accent-[var(--rouge)]" />
+              {t('property.publishNow')}
+            </label>
+          )}
           {saveError && <p role="alert" className="text-sm text-red-600">{saveError}</p>}
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="ghost" onClick={() => router.back()}>

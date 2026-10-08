@@ -124,7 +124,8 @@
     "views": "Views",
     "addProperty": "Add Property",
     "editProperty": "Edit Property",
-    "deleteConfirm": "Are you sure you want to delete this property?"
+    "deleteConfirm": "Are you sure you want to delete this property?",
+    "publishNow": "Publish listing now (visible to visitors)"
   },
   "search": {
     "title": "Advanced Search",
