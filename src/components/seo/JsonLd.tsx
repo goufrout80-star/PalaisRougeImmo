@@ -11,9 +11,9 @@ export function RealEstateAgentJsonLd() {
           url: 'https://kamarimmob.com',
           logo: {
             '@type': 'ImageObject',
-            url: 'https://kamarimmob.com/logo.svg',
-            width: 200,
-            height: 60,
+            url: 'https://kamarimmob.com/logo-kamarimmob.svg',
+            width: 1254,
+            height: 1254,
           },
           image: 'https://kamarimmob.com/og-home.svg',
           description:
@@ -167,7 +167,7 @@ export function BlogPostJsonLd({ post }: { post: Record<string, unknown> }) {
             name: 'Kamar Immob',
             logo: {
               '@type': 'ImageObject',
-              url: 'https://kamarimmob.com/logo.svg',
+              url: 'https://kamarimmob.com/logo-kamarimmob.svg',
             },
           },
           mainEntityOfPage: {

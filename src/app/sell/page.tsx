@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Shield, Users, Clock, Send, CheckCircle } from 'lucide-react';
 import { useI18n } from '@/context/I18nContext';
@@ -10,27 +10,40 @@ import Link from 'next/link';
 export default function SellPage() {
   const { t } = useI18n();
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted,setSubmitted] = useState(false);
+  const [submitting,setSubmitting] = useState(false);
+  const [submitError,setSubmitError] = useState('');
+  const submitLock = useRef(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLock.current) return;
+    submitLock.current = true;
+    setSubmitting(true);
+    setSubmitError('');
     try {
-      await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, source: 'Page Vendre' }),
+      const response = await fetch('/api/contact', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({...formData,source:'Page Vendre'}),
       });
-    } catch { /* email API optional */ }
-
-    setSubmitted(true);
-    setFormData({ name: '', email: '', phone: '', message: '' });
+      if (!response.ok) throw new Error(`Contact error ${response.status}`);
+      setSubmitted(true);
+      setFormData({name:'',email:'',phone:'',message:''});
+    } catch(error) {
+      console.error('[Sell] Request not saved:',error);
+      setSubmitError("Impossible d'envoyer la demande. Réessayez.");
+    } finally {
+      submitLock.current = false;
+      setSubmitting(false);
+    }
   };
 
   const benefits = [
     { icon: TrendingUp, title: 'Estimation gratuite', desc: 'Obtenez une estimation précise de votre bien basée sur le marché actuel.' },
     { icon: Shield, title: 'Accompagnement complet', desc: 'De l\'estimation à la signature, nous gérons toutes les étapes.' },
     { icon: Users, title: 'Réseau d\'acheteurs', desc: 'Accédez à notre large base de données d\'acheteurs qualifiés.' },
-    { icon: Clock, title: 'Vente rapide', desc: 'Nos propriétés se vendent en moyenne 40% plus vite que le marché.' },
+    { icon: Clock, title: 'Vente rapide', desc: 'Une stratégie de commercialisation adaptée à votre propriété.' },
   ];
 
   return (
@@ -95,7 +108,8 @@ export default function SellPage() {
                     <label className="block text-sm font-medium text-[var(--noir)] mb-1.5">{t('contact.message')}</label>
                     <textarea value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} className="input-luxury min-h-[100px]" placeholder="Décrivez votre bien (type, surface, quartier, etc.)" required />
                   </div>
-                  <Button type="submit" className="w-full">
+                  {submitError && <p role="alert" className="text-red-600 text-sm">{submitError}</p>}
+                    <Button type="submit" disabled={submitting} className="w-full">
                     <Send className="w-4 h-4 mr-2" />
                     {t('sell.requestValuation')}
                   </Button>

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { BlogPostJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import MarkdownArticle from '@/components/content/MarkdownArticle';
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> }
@@ -126,12 +127,7 @@ export default async function BlogPostPage(
           )}
         </header>
 
-        {post.content_fr && (
-          <div
-            className="prose prose-lg max-w-none text-[var(--charcoal)] leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: post.content_fr }}
-          />
-        )}
+        {post.content_fr && <MarkdownArticle content={post.content_fr} />}
 
         <div className="mt-12 pt-8 border-t border-[var(--border)]">
           <Link

@@ -17,6 +17,8 @@ export default function ResourcesPage() {
   const [loadingBlogs, setLoadingBlogs] = useState(true);
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [subscribeError, setSubscribeError] = useState('');
+  const [subscribing, setSubscribing] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -32,14 +34,21 @@ export default function ResourcesPage() {
   }, []);
 
   const handleSubscribe = async () => {
-    if (!newsletterEmail) return;
-    await fetch('/api/newsletter', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: newsletterEmail }),
-    });
-    setSubscribed(true);
-    trackEvent('newsletter_subscribe', 'engagement');
+    if (subscribing || !newsletterEmail) return;
+    setSubscribing(true);
+    setSubscribeError('');
+    try {
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email:newsletterEmail}),
+      });
+      if (!response.ok) throw new Error(`Newsletter error ${response.status}`);
+      setSubscribed(true);
+      trackEvent('newsletter_subscribe','engagement');
+    } catch(error) {
+      console.error('[Newsletter] Subscription failed:',error);
+      setSubscribeError("Inscription impossible. Réessayez.");
+    } finally { setSubscribing(false); }
   };
 
   const categories = ['Tous', ...Array.from(new Set(blogs.map(p => p.category).filter(Boolean)))];
@@ -134,11 +143,12 @@ export default function ResourcesPage() {
                 placeholder={t('resources.emailPlaceholder')}
                 className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:border-[var(--gold-light)]"
               />
-              <button onClick={handleSubscribe} className="px-5 py-3 bg-[var(--gold-light)] text-white rounded-xl hover:bg-[#9A7820] transition-colors cursor-pointer">
+              <button onClick={handleSubscribe} disabled={subscribing} aria-label="S'inscrire à la newsletter" className="px-5 py-3 bg-[var(--gold-light)] text-white rounded-xl hover:bg-[#9A7820] transition-colors cursor-pointer">
                 <Send className="w-4 h-4" />
               </button>
             </div>
           )}
+          {subscribeError && <p role="alert" className="text-red-300 text-sm mt-3">{subscribeError}</p>}
         </motion.div>
       </div>
     </div>

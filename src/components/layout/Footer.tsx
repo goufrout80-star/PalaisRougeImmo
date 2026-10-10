@@ -12,6 +12,8 @@ export default function Footer() {
   const { t } = useI18n();
   const pathname = usePathname();
   const [email, setEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState('');
+  const [newsletterBusy, setNewsletterBusy] = useState(false);
   const [settings, setSettings] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/logo.svg" alt="Kamar Immob" width={36} height={36} />
+              <Image src="/logo-kamarimmob.svg" alt="Kamar Immob" width={36} height={36} />
               <div>
                 <div className="font-display text-lg font-bold leading-tight">Kamar Immob</div>
                 <div className="text-[10px] text-[var(--gold)] font-semibold tracking-[0.2em] uppercase">Marrakech</div>
@@ -141,16 +143,22 @@ export default function Footer() {
               />
               <button
                 onClick={async () => {
-                  if (!email || !email.includes('@')) return;
+                  if (newsletterBusy || !email.includes('@')) return;
+                  setNewsletterBusy(true);
+                  setNewsletterStatus('');
                   try {
-                    await fetch('/api/newsletter', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ email }),
+                    const response = await fetch('/api/newsletter', {
+                      method:'POST',headers:{'Content-Type':'application/json'},
+                      body:JSON.stringify({email}),
                     });
-                  } catch { /* optional */ }
-                  setEmail('');
+                    if (!response.ok) throw new Error('Subscription unavailable');
+                    setEmail('');
+                    setNewsletterStatus('Inscription enregistrée.');
+                  } catch {
+                    setNewsletterStatus("L'inscription a échoué. Réessayez.");
+                  } finally { setNewsletterBusy(false); }
                 }}
+                disabled={newsletterBusy}
                 className="px-4 py-2.5 bg-[var(--gold)] text-white rounded-lg hover:bg-[#9A7820] transition-colors flex items-center gap-2 cursor-pointer"
               >
                 <Send className="w-4 h-4" />
@@ -158,6 +166,8 @@ export default function Footer() {
             </div>
           </div>
         </div>
+
+        {newsletterStatus && <p role="status" className="text-xs text-white mt-2">{newsletterStatus}</p>}
 
         {/* Contact Info */}
         <div className="mt-8 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">

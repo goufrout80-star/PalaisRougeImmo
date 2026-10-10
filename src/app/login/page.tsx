@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { User, Lock, AlertCircle } from 'lucide-react';
 import { useI18n } from '@/context/I18nContext';
@@ -54,9 +55,7 @@ export default function LoginPage() {
         <div className="bg-white rounded-2xl border border-[var(--border)] shadow-luxury p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-14 h-14 bg-[var(--rouge)] rounded-xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-white font-bold text-lg">KI</span>
-            </div>
+            <Image src="/logo-kamarimmob.svg" alt="Kamar Immob" width={56} height={56} priority className="rounded-xl mx-auto mb-4" />
             <h1 className="font-display text-2xl font-bold text-[var(--rouge)] mb-1">{t('auth.login')}</h1>
             <p className="text-sm text-[var(--stone)]">{t('auth.loginSubtitle')}</p>
           </div>

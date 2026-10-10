@@ -136,7 +136,7 @@ export default function Navbar() {
             {/* Center Logo */}
             <Link href="/" className="flex flex-col items-center">
               <div className="flex items-center gap-2">
-                <Image src="/logo.svg" alt="Kamar Immob" width={36} height={36} priority />
+                <Image src="/logo-kamarimmob.svg" alt="Kamar Immob" width={36} height={36} priority />
                 <div>
                   <div className="font-display text-lg font-bold text-[var(--rouge)] leading-tight">
                     Kamar Immob
